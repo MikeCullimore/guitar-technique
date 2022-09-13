@@ -1,20 +1,22 @@
 # Guitar technique
 
-A web app to help improve guitar-playing technique.
+Tools to help improve guitar-playing technique.
 
 ## Project goals
 
 * Make technical exercises more fun: turn them into a game.
 * Learn chord shapes.
+* Learn scales.
 * Reduce time to change chords.
 * Reduce unwanted string noise.
-* Improve understanding of stack: TypeScript, Node/Deno, React, Express. (Redux? MongoDB? Go? Rust? WebAssembly?)
+* Keep: TypeScript, Node/Deno, React, Express. (Redux? MongoDB? Go? Rust? WebAssembly?)
 * Experiment with web APIs (e.g. web audio).
 * Play with data visualisation and analysis.
 
 ## todo
 
-* Deno or Node?
+* Start with simple animations of e.g. pentatonic scale.
+* Add synchronised audio.
 
 ## Useful links
 

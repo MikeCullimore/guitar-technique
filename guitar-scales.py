@@ -2,11 +2,15 @@
 guitar-scales.py
 
 todo:
+Separate the rendering of a circle on the fretboard.
+Function to take sequence of notes, output animation with given name.
 Include transparency of circle.
 Translate notes to string and fret numbers.
-Animate sequence of several images.
-How to handle open strings? Circle at left edge (nut)?
+Handle open strings as fret 0. Circle at left edge (nut)?
 Define pentatonic shape then transpose to different scales/root notes.
+Extend to other modes (Dorian etc.).
+Input raw audio, extract notes (e.g. via librosa chromagram).
+    Then change transparency of dots based on volume and animate at say 25 FPS (rather than binary note on/off).
 """
 
 import os.path
@@ -19,6 +23,10 @@ fret_edges = [140,266,385,497,603,703,797,886,970,1049,1124,1195,1261,1324,1384,
 string_centres = [25,53,81,109,137,165]
 num_strings = len(string_centres)
 
+# todo: deal with A#/Bb: identity will depend on which scale.
+chroma = ["A", "A#/Bb", "B", "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab"]
+major_intervals = [1, 1, 2, 1, 1, 1, 2]
+
 def imread(fname):
     return Image.open(os.path.join(folder, fname))
 
@@ -27,6 +35,20 @@ def imsave(image, fname):
 
 def calculate_offset(string, fret, w, h):
     return (fret_edges[fret - 1] - w, string_centres[num_strings - string] - h//2)
+
+def position_to_note(string, fret):
+    note = "C"
+    octave = 4
+    return note, octave
+
+def major_scale(key):
+    pass
+
+def minor_scale(key):
+    pass
+
+def arpeggio(key):
+    pass
 
 def main():
     # Load images.
@@ -57,11 +79,19 @@ def main():
         (6, 15),
     ]
 
+    imgs = []
     for i, (string, fret) in enumerate(pentatonic):
         offset = calculate_offset(string, fret, w, h)
         output = frets.copy()
         output.paste(circle, offset)
-        imsave(output, f'pentatonic-{i+1:02}.png')
+        imgs.append(output)
+        # imsave(output, f'pentatonic-{i+1:02}.png')
+    
+    # Come back down the scale: reverse the images list and append to itself, without repeating the middle one.
+    frames = imgs[1:]+imgs[-2::-1]
+    
+    # Save animation.
+    imgs[0].save(os.path.join(folder, 'pentatonic.gif'), save_all=True, append_images=frame, optimize=True, duration=500, loop=0)
 
 if __name__ == '__main__':
     main()

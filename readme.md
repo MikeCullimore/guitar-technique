@@ -9,7 +9,7 @@ Tools to help improve guitar-playing technique.
 * Learn scales.
 * Reduce time to change chords.
 * Reduce unwanted string noise.
-* Keep: TypeScript, Node/Deno, React, Express. (Redux? MongoDB? Go? Rust? WebAssembly?)
+* Tools to play with: TypeScript, Node/Deno, React, Express. (Redux? MongoDB? Go? Rust? WebAssembly?)
 * Experiment with web APIs (e.g. web audio).
 * Play with data visualisation and analysis.
 

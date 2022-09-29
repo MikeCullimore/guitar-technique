@@ -5,32 +5,43 @@ todo:
 Abstraction(s) for building up arrays of positions.
     Simplify by not specifying string numbers explicitly? [(1, 7), (3, 9)] => [7, None, 9]
     Chord shapes (e.g. major seven, minor), transposed to given root.
-Accommodate rhythm (e.g. When the Sun Goes Down).
+    Similarly for arpeggios.
+    Define pentatonic shape then transpose to different scales/root notes.
+    Given a key, return all the chords in that key.
+        Break down: return all the notes, then get chord for given note.
+Exercises:
+    Given chord all along the neck.
+    Given scale all along one string.
+    Scales, every position.
 Generate following animations:
     Solos: Californication, Zephyr Song.
+Show which notes coming next? (Show left hand shape then highlight each when played.)
+Translate notes to string and fret numbers and vice versa.
+    Define standard tuning EADGBe (accommodate other tunings e.g. drop D).
+    But keep fret position representation: chords not necessarily "logical".
+Accommodate rhythm (e.g. When the Sun Goes Down).
+Reverse string numbers? Standard is low E string is 6 not 1?
 Improve images:
     Own guitar has 21 frets: truncate fretboard image?
     Increase contrast: white neck, grey frets, black markers.
     Generate the neck image from the edges array (can then translate to SVG).
     Include transparency of marker.
     Display note names, intervals.
-    Equally spaced frets? (Don't need realism, better use of space.)
+    Equally spaced frets? (Don't need realism, better use of space.) As option?
     Option to look at guitar as if held by someone else.
-Show which notes coming next? (Show left hand shape then highlight each when played.)
-Translate notes to string and fret numbers and vice versa.
-    Define standard tuning EADGBe (accommodate other tunings e.g. drop D).
-    But keep fret position representation: chords not necessarily "logical".
 Handle open strings as fret 0. marker at left edge (nut)?
-Define pentatonic shape then transpose to different scales/root notes.
 Module(s).
     Remove all global state.
     Separate anything common to guitar, piano etc. (music theory).
     Separate repo per component?
 Extend to other modes (Dorian etc.).
 Input raw audio, extract notes (e.g. via librosa chromagram).
+    Turns out this is a very challenging, not fully solved, problem.
     Then change transparency of dots based on volume and animate at say 25 FPS (rather than binary note on/off).
 Include bends, hammer-ons, pull-offs.
 Generate synchronised audio.
+    Click track/metronome at given tempo for scales, arpeggios etc.
+    Play along to given recording.
 Interface to other formats e.g. MusicXML?
 Type annotations.
 """
@@ -43,24 +54,6 @@ from PIL import Image
 fret_edges = [140,266,385,497,603,703,797,886,970,1049,1124,1195,1261,1324,1384,1440,1493,1543,1590,1634,1676,1716,1753,1789]
 string_centres = [25,53,81,109,137,165]
 num_strings = len(string_centres)
-
-# todo: deal with A#/Bb: identity will depend on which scale.
-chroma = ["A", "A#/Bb", "B", "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab"]
-major_intervals = [1, 1, 2, 1, 1, 1, 2]
-
-# def position_to_note(string, fret):
-#     note = "C"
-#     octave = 4
-#     return (note, octave)
-
-# def major_scale(key):
-#     pass
-
-# def minor_scale(key):
-#     pass
-
-# def arpeggio(key):
-#     pass
 
 def imread(filename):
     return Image.open(os.path.join(folder, filename))
@@ -159,6 +152,7 @@ def main():
     # bpm = 120/4
 
     # Arpeggios over two octaves in the key of D (D E F# G A B C#).
+    # todo: show shape for current arpeggio then highlight each note within it.
     # todo: generate in all keys.
     # D major: D F# A
     # E minor: E G B

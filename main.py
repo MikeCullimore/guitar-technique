@@ -13,6 +13,8 @@ Exercises:
     Given chord all along the neck.
     Given scale all along one string.
     Scales, every position.
+Generate following images:
+    For every chroma value, mark all positions.
 Generate following animations:
     Solos: Californication, Zephyr Song.
 Show which notes coming next? (Show left hand shape then highlight each when played.)
@@ -59,7 +61,7 @@ def imread(filename):
     return Image.open(os.path.join(folder, filename))
 
 # Load input images.
-folder = 'images'
+folder = 'data'
 frets = imread('guitar-fretboard.png')
 marker = imread('circle.png')
 marker_width, marker_height = marker.size

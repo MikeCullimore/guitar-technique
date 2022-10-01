@@ -24,6 +24,7 @@ Translate notes to string and fret numbers and vice versa.
 Accommodate rhythm (e.g. When the Sun Goes Down).
 Reverse string numbers? Standard is low E string is 6 not 1?
 Improve images:
+    Adapt to vertical neck for chord diagrams.
     Own guitar has 21 frets: truncate fretboard image?
     Increase contrast: white neck, grey frets, black markers.
     Generate the neck image from the edges array (can then translate to SVG).

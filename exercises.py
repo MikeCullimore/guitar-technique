@@ -8,6 +8,7 @@ from notes import chroma_list
 
 string_names = ['low E', 'A', 'D', 'G', 'B', 'high E']
 open_chords = ['C', 'D', 'F', 'Am']  # todo: add all those listed in brown notebook.
+keys = ['C', 'G', 'D', 'A', 'E', 'B/C♭', 'G♭/F#', 'D♭/C#', 'A♭', 'E♭', 'B♭', 'F', 'a', 'e', 'b', 'f#', 'c#', 'g#', 'e♭/d#', 'b♭', 'f', 'c', 'g', 'd']
 
 def random_chroma():
     """Choose a random chroma value."""
@@ -21,6 +22,10 @@ def random_open_chord():
     """Choose a random open chord."""
     return random.choice(open_chords)
 
+def random_key():
+    """Choose a random key."""
+    return random.choice(keys)
+
 def main():
     # todo: option to go round again?
     # todo: option to skip an exercise?
@@ -33,7 +38,8 @@ def main():
         f'Play a {random_chroma()} minor pentatonic scale.',
         f'Play a {random_chroma()} minor scale.',
         f'Play a {random_chroma()} major scale.',
-        f'Play a {random_open_chord()} open chord.'
+        f'Play a {random_open_chord()} open chord.',
+        f'Play all the arpeggios in the key of {random_key()}.'  # todo: explain what they are!
     ]
     random.shuffle(exercises)
 

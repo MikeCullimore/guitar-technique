@@ -9,6 +9,10 @@ import os.path
 
 from PIL import Image
 
+def bpm_to_milliseconds(bpm):
+    """Convert beats per minute (BPM) to milliseconds."""
+    return 60000/bpm
+
 class NeckRenderer:
     def __init__(self):
         # Load input images.
@@ -46,6 +50,16 @@ class NeckRenderer:
             images.append(image)
         return images
     
+    def animate(self, sequence, filename, bpm=60):
+        """Given array of images, save as animation (GIF).
+    
+        todo:
+        Append GIF here.
+        """
+        duration = bpm_to_milliseconds(bpm)
+        images = self.render_images(sequence)
+        images[0].save(self._get_path(filename), append_images=images[1:], duration=duration, save_all=True, optimize=True, loop=0)
+    
     def _calculate_offset(self, string, fret):
         """Calculate the (x, y) offset needed to position the marker on a given string and fret.""" 
         x = self._fret_edges[fret - 1] - self._marker_width
@@ -53,8 +67,11 @@ class NeckRenderer:
         return (x, y)
     
     def _imread(self, filename):
-        return Image.open(os.path.join(self._folder, filename))
+        return Image.open(self._get_path(filename))
     
     def _imsave(self, image, filename):
-        image.save(os.path.join(self._folder, filename))
+        image.save(self._get_path(filename))
+    
+    def _get_path(self, filename):
+        return os.path.join(self._folder, filename)
     

@@ -74,7 +74,8 @@ def main():
 
     for exercise in exercises:
         print(exercise)
-        # input('Press enter to continue...')
+        input('Press enter to continue...')
+        print()
     print('Well done! Session complete!')
 
 if __name__ == '__main__':

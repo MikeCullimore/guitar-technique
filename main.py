@@ -45,35 +45,15 @@ Interface to other formats e.g. MusicXML?
 Type annotations.
 """
 
-import os.path
-
 from neck_renderer import NeckRenderer
-
-folder = 'data'
 
 def append_reversed_sequence(sequence, loop=True):
     """Given a sequence, reverse it and append it (without repeating the middle position).
 
     Useful to e.g. take an ascending scale and descend it.
-
-    todo: handle looping in animation function?
     """
     stop = -len(sequence) if loop else None
     return sequence + sequence[-2:stop:-1]
-
-def bpm_to_milliseconds(bpm):
-    """Convert beats per minute (BPM) to milliseconds."""
-    return 60000/bpm
-
-def animate_images(images, filename, bpm=60):
-    """Given array of images, save as animation (GIF).
-    
-    todo:
-    Append GIF here.
-    Option to not loop? Or have long pause? Or blank frame?
-    """
-    duration = bpm_to_milliseconds(bpm)
-    images[0].save(os.path.join(folder, filename), append_images=images[1:], duration=duration, save_all=True, optimize=True, loop=0)
 
 def main():
     # Define pentatonic shape (tuples of (string, fret)).
@@ -175,8 +155,7 @@ def main():
     # Generate images and save as animation.
     # todo: generate incrementally rather than load all images into memory.
     neck_renderer = NeckRenderer()
-    images = neck_renderer.render_images(sequence)
-    animate_images(images, filename, bpm)
+    neck_renderer.animate(sequence, filename, bpm)
 
 if __name__ == '__main__':
     main()

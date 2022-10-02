@@ -2,6 +2,7 @@
 notes.py
 
 todo:
+Separate files for chroma, tuning. Move main into existing main.py.
 Invert string numbers to follow convention that high E is 1.
 Convert chroma to note names, accounting for key (e.g. is note C# or D♭?).
 Convert note and octave to pitch (configurable tuning, start with concert pitch).

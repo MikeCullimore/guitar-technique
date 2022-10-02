@@ -2,6 +2,8 @@
 Playing with animations for guitar scales.
 
 todo:
+Power chords.
+Text printout of neck (see e.g. https://en.wikipedia.org/wiki/Power_chord)
 Abstraction(s) for building up arrays of positions.
     Simplify by not specifying string numbers explicitly? [(1, 7), (3, 9)] => [7, None, 9]
     Chord shapes (e.g. major seven, minor), transposed to given root.
@@ -9,14 +11,12 @@ Abstraction(s) for building up arrays of positions.
     Define pentatonic shape then transpose to different scales/root notes.
     Given a key, return all the chords in that key.
         Break down: return all the notes, then get chord for given note.
-Exercises:
-    Given chord all along the neck.
-    Given scale all along one string.
-    Scales, every position.
 Generate following images:
     For every chroma value, mark all positions.
 Generate following animations:
-    Solos: Californication, Zephyr Song.
+    Californication
+    Zephyr Song
+    I Want You (She's So Heavy)
 Show which notes coming next? (Show left hand shape then highlight each when played.)
 Accommodate rhythm (e.g. When the Sun Goes Down).
 Reverse string numbers? Standard is low E string is 6 not 1?

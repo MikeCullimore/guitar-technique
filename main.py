@@ -90,6 +90,7 @@ def main():
 
     # Arpeggios over two octaves in the key of D (D E F# G A B C#).
     # todo: show shape for current arpeggio then highlight each note within it.
+    # todo: generate these given the key.
     # todo: generate in all keys.
     # D major: D F# A
     # E minor: E G B

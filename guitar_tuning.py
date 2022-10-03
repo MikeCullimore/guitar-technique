@@ -1,5 +1,14 @@
 from chroma import Chroma, chroma_list, len_chroma
 
+# Type aliases: https://docs.python.org/3/library/typing.html
+# todo: possible to impose length limits e.g. Tuning is a list of *six* strings?
+Octave = int
+Note = tuple[Chroma, Octave]
+Tuning = list[Note]
+String = int
+Fret = int
+Position = tuple[String, Fret]
+
 # Standard tuning.
 E2 = (Chroma.E, 2)
 A2 = (Chroma.A, 2)

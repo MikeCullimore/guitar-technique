@@ -1,10 +1,3 @@
-"""
-chroma.py
-
-Convert chroma to note names, accounting for key (e.g. is note C# or D♭?).
-    Broader enum with all note names, then map to chroma and string representation?
-"""
-
 from enum import Enum, auto
 
 class Chroma(Enum):

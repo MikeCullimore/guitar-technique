@@ -17,6 +17,7 @@ Tools to help improve guitar-playing technique.
 
 * [Spectro](https://github.com/calebj0seph/spectro): real-time FFT visualisation of audio (from file or microphone).
 * [fft-js](https://www.npmjs.com/package/fft-js)
+* [gensound](https://github.com/Quefumas/gensound)
 
 ### Identify chords in audio recordings
 

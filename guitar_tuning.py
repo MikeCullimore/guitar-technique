@@ -2,6 +2,8 @@ from chroma import Chroma, chroma_list, len_chroma
 
 # Type aliases: https://docs.python.org/3/library/typing.html
 # todo: possible to impose length limits e.g. Tuning is a list of *six* strings?
+# todo: look at data classes https://docs.python.org/3/library/dataclasses.html
+# todo: look at named tuples https://docs.python.org/3/library/typing.html#typing.NamedTuple 
 Octave = int
 Note = tuple[Chroma, Octave]
 Tuning = list[Note]
@@ -10,19 +12,21 @@ Fret = int
 Position = tuple[String, Fret]
 
 # Standard tuning.
-E2 = (Chroma.E, 2)
-A2 = (Chroma.A, 2)
-D3 = (Chroma.D, 3)
-G3 = (Chroma.G, 3)
-B3 = (Chroma.B, 3)
-E4 = (Chroma.E, 4)
-standard_tuning = [E2, A2, D3, G3, B3, E4]
+standard_tuning = [
+    (Chroma.E, 2),
+    (Chroma.A, 2),
+    (Chroma.D, 3),
+    (Chroma.G, 3),
+    (Chroma.B, 3),
+    (Chroma.E, 4)
+]
 
 class GuitarTuning:
     """Guitar tuning: convert from string and fret to note and vice versa.
     
     todo:
     Invert string numbers to follow convention that high E is 1.
+    Use MIDI note numbers instead to simplify?
     """
     def __init__(self, open_strings=standard_tuning, num_frets=21):
         self._open_strings = open_strings

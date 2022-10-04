@@ -1,116 +1,73 @@
 """
 notes.py
 
+Conversion between note (chroma and octave), MIDI number, piano key number, frequency.
+
 todo:
-Add minor variants: harmonic, melodic.
-Separate file scales.py? Just rename?
-Convert note and octave to pitch (configurable tuning, start with concert pitch).
-Capture circle of fifths?
+Add a frequency conversion function which accounts for string inharmonicity (see Railsback curve).
 """
 
-from chroma import Chroma, chroma_list, len_chroma
-from guitar_tuning import GuitarTuning
+from chroma import chroma_list, len_chroma
 
-semitone = 1
-tone = 2
-minor_third = 3
-major_third = 4
-intervals_major = [tone, tone, semitone, tone, tone, tone, semitone]
-intervals_minor = [tone, semitone, tone, tone, semitone, tone, tone]
-minor_pentatonic_scale_degrees = [1, 3, 4, 5, 7]  # (Of the natural minor scale with the same root.)
-major_pentatonic_scale_degrees = [1, 2, 3, 5, 6]  # (Of the natural minor scale with the same root.)
+MIDI_MIN = 0
+MIDI_MAX = 128
+PIANO_MIN = 1
+PIANO_MAX = 88
+MIDI_A4 = 69
+A4_FREQUENCY = 440  # [Hz]
 
-def get_notes_in_scale(chroma, intervals):
-    i = chroma_list.index(chroma)
-    notes = [chroma]
-    for interval in intervals:
-        j = (i + interval) % len_chroma
-        notes.append(chroma_list[j])
-        i = j
-    return notes
-
-def major_scale(chroma):
-    return get_notes_in_scale(chroma, intervals_major)
-
-def natural_minor_scale(chroma):
-    return get_notes_in_scale(chroma, intervals_minor)
-
-def minor_pentatonic_scale(root):
-    """Get the minor pentatonic scale on the given root."""
-    # Start with natural minor scale with same root.
-    minor = natural_minor_scale(root)
-
-    # Select the required degrees of the minor scale.
-    return [minor[d - 1] for d in minor_pentatonic_scale_degrees]
-
-def major_pentatonic_scale(root):
-    """Get the major pentatonic scale on the given root."""
-    # Start with major scale with same root.
-    major = major_scale(root)
-
-    # Select the required degrees of the minor scale.
-    return [major[d - 1] for d in major_pentatonic_scale_degrees]
-
-def get_major_triad(root):
-    return get_notes_in_scale(root, [major_third, minor_third])
-
-def get_triads_in_major_key(chroma):
-    """For a given major key, get the triads (for arpeggio exercise).
+def midi_to_piano(midi):
+    """Convert MIDI note number to piano key number."""
+    if midi < 21:
+        raise ValueError('MIDI note number must be greater than or equal to 21.')
     
-    todo:
-    Need to know character of each triad to know which pattern to use.
-        Possible to work it out so not tied into EADGBe tuning?
-    Generate in all keys.
-    Animation for each.
-    """
-    # Triads in key of D:
-    # D major: D F# A
-    # E minor: E G B
-    # F# minor: F# A C#
-    # G major: G B D
-    # A major: A C# E
-    # B minor: B D F#
-    # C# (half?) diminished: C# E G
+    if midi > 108:
+        raise ValueError('MIDI note number must be less than or equal to 108.')
     
-    # Notes in key of D: D E F# G A B C#
-    notes = major_scale(chroma)
-    notes = notes[:-1]  # Truncate the octave.
-    print(f'Notes in the key of {chroma.name}: {notes_str(notes)}')
+    return midi - 20
+
+def piano_to_midi(piano):
+    """Convert piano key number to MIDI note number."""
+    if piano < PIANO_MIN:
+        raise ValueError(f'Piano key number must be greater than or equal to {PIANO_MIN}.')
     
-    # Select notes in triad (starting on each root in the key).
-    # todo: given triad, infer character (major? minor? diminished?).
-    # todo: separate function to get triad for just one root in given key.
-    # todo: capture intervals (major third, perfect fifth).
-    print(f'Triads:')
-    n = len(notes)
-    root = 1
-    third = 3
-    fifth = 5
-    for i, note in enumerate(notes):
-        # Select notes from scale.
-        # triad = [notes[((i + j - 1) % n)] for j in [root, third, fifth]]
-        
-        # Alternative: get triad directly from known intervals.
-        triad = get_major_triad(note)
-        print(notes_str(triad))
+    if piano > PIANO_MAX:
+        raise ValueError(f'Piano key number must be less than or equal to {PIANO_MAX}.')
+    
+    return piano + 20
 
-def notes_str(notes):
-    return ', '.join([note.name for note in notes])
+def midi_to_note(midi):
+    """Convert MIDI note number to note (chroma, octave)."""
+    chroma_index = midi % len_chroma
+    chroma = chroma_list[chroma_index]
+    octave = (midi // len_chroma) - 1
+    # print(f'MIDI: {midi}, chroma: {chroma}, octave: {octave}')
+    return (chroma, octave)
 
-def test_tuning_lookups():
-    tuning = GuitarTuning()
-    # x = tuning.position_to_note(1, 1)
-    x = tuning.note_to_positions(Chroma.A, 3)
-    print(x)
+def note_to_midi(chroma, octave):
+    """Convert note (chroma, octave) to MIDI note number."""
+    chroma_index = chroma_list.index(chroma)
+    return (octave + 1)*len_chroma + chroma_index
+
+def midi_to_frequency(midi):
+    return A4_FREQUENCY*2**((midi - MIDI_A4)/len_chroma)
 
 def main():
-    # test_tuning_lookups()
-    
-    # scale = minor_pentatonic_scale(Chroma.C)
-    # scale = major_pentatonic_scale(Chroma.C)
-    # print(notes_str(scale))
+    midi = 21
+    piano = midi_to_piano(midi)
+    print(f'MIDI {midi} = piano {piano}')
 
-    get_triads_in_major_key(Chroma.D)
+    piano = 69
+    midi = piano_to_midi(piano)
+    print(f'Piano {piano} = MIDI {midi}')
+
+    for piano in range(1, PIANO_MAX+1):
+        midi = piano_to_midi(piano)
+        # chroma, octave = midi_to_note(midi)
+        # midi2 = note_to_midi(chroma, octave)
+        # print(f'{midi}, {midi2}')
+        frequency = midi_to_frequency(midi)
+        print(f'MIDI: {midi}, frequency {frequency:.2f}')
 
 if __name__ == '__main__':
     main()

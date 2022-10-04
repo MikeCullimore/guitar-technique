@@ -15,7 +15,7 @@ Chords: loop a list (say four chords?).
 
 import random
 
-from notes import chroma_list
+from chroma import chroma_list
 
 string_names = ['low E', 'A', 'D', 'G', 'B', 'high E']
 open_chords = ['C', 'D', 'F', 'Am']  # todo: add all those listed in brown notebook.

@@ -1,3 +1,11 @@
+"""
+chroma.py
+
+todo:
+Differentiate between enharmonic notes e.g. C# and D♭: they do not have the
+    same pitch in all tuning systems.
+"""
+
 from enum import Enum, auto
 
 class Chroma(Enum):

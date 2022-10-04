@@ -2,6 +2,7 @@
 Playing with animations for guitar scales.
 
 todo:
+Rename this file once scope is clearly defined.
 Power chords.
 Text printout of neck (see e.g. https://en.wikipedia.org/wiki/Power_chord)
 Abstraction(s) for building up arrays of positions.

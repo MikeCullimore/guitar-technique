@@ -11,6 +11,7 @@ Option to go round again?
 Option to skip an exercise?
 Select random subset (once list gets too long)?
 Chords: loop a list (say four chords?).
+Play a song, guess the key (identify the chords).
 """
 
 import random

@@ -2,10 +2,9 @@
 scales.py
 
 todo:
-Shift focus to scale patterns rather than working them out from neck positions lookup?
 Combine this with note to neck position lookup to generate scale exercises.
-Differentiate between notes with the same pitch but different names e.g. C# and D♭.
-    Broader enum with all note names, then map to chroma and string representation?
+    Or shift focus to scale patterns instead?
+Differentiate between enharmonic notes e.g. C# and D♭.
 Add minor variants: harmonic, melodic.
 Capture circle of fifths?
 """

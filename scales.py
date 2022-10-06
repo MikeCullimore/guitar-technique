@@ -7,6 +7,9 @@ Combine this with note to neck position lookup to generate scale exercises.
 Differentiate between enharmonic notes e.g. C# and D♭.
 Add minor variants: harmonic, melodic.
 Capture circle of fifths?
+Chord inversions (separate file?).
+Specify octave as offset from root? (Then transpose by octave(s).)
+Power chords.
 """
 
 from chroma import Chroma, chroma_list, len_chroma

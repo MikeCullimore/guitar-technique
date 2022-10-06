@@ -4,6 +4,7 @@ notes.py
 Conversion between note (chroma and octave), MIDI number, piano key number, frequency.
 
 todo:
+Note as struct (chroma and octave).
 Add a frequency conversion function which accounts for string inharmonicity (see Railsback curve).
 """
 

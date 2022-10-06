@@ -7,7 +7,9 @@ https://stackoverflow.com/questions/48043004/how-do-i-generate-a-sine-wave-using
 
 todo:
 Add audio to animations: MoviePy.
-Implement Karplus-Strong.
+Save waveform plots.
+For chords and sequences of notes, add onset delay between each.
+Improve Karplus-Strong implementation.
     Tune parameters to sound guitar-like.
     Timbre of guitar or piano.
     https://flothesof.github.io/Karplus-Strong-algorithm-Python.html (also includes moviepy animation!)
@@ -37,31 +39,24 @@ from chroma import Chroma
 from notes import midi_to_frequency, note_to_midi
 from scales import get_major_triad
 
-fs = 8000
-# fs = 44100  # Sampling frequency [Hz]
+# fs = 8000
+fs = 44100  # Sampling frequency [Hz]
 folder = 'data'
 
-def ks2(frequency, duration):
+def karplus_strong(frequency):
     """
-    Karplus-Strong, refactor in progress.
+    Karplus-Strong string synthesis.
 
     todo:
     Handle multiple frequencies at this level?
-    Bug: sounds wrong (too electronic/distorted).
-        Implement exactly as per link, then adapt?
-        In WAV write method?
+    Animate wavetable modification (becomes travelling sine wave and amplitude decays).
     """
     # num_samples = np.ceil(duration * fs).astype(int) + 1
     num_samples = 2*fs
-    print(f'Frequency [Hz]: {frequency}')
-    print(f'Duration [s]: {duration}')
 
     # Initial wavetable: random -1 or 1 (not anywhere in that range!).
-    dtype = np.int16
-    # iinfo = np.iinfo(dtype)
     wavetable_size = np.floor(fs/frequency).astype(int)
-    # wavetable = np.random.uniform(-1., 1., wavetable_size)
-    wavetable = (2*np.random.randint(0, 2, wavetable_size) - 1).astype(float)
+    wavetable = (2*np.random.randint(0, 2, wavetable_size) - 1).astype(np.float32)
 
     # plt.figure()
     # plt.plot(wavetable)
@@ -76,46 +71,7 @@ def ks2(frequency, duration):
         previous_value = signal[i]
         current_sample = (current_sample + 1) % wavetable_size
     
-    # signal *= 32767  # Scale to fill WAV file range? todo: save as float 32 instead?
-    
     return signal
-
-def karplus_strong(frequency):
-    """
-    Karplus-Strong string synthesis.
-
-    todo:
-    No need to calculate once amplitude drops below some threshold?
-    """
-    # chroma = Chroma.C
-    # octave = 4
-    # midi = note_to_midi(chroma, octave)
-    # frequency = midi_to_frequency(midi)
-    # print(frequency)
-
-    # todo: one wavetable for all frequencies, just loop?
-    # wavetable_size = fs // frequency
-    # wavetable_size = np.floor(fs/frequency).astype(int)
-    duration = 1  # todo: regardless of frequency? Or pad with zeroes when adding?
-    wavetable_size = np.ceil(duration * fs).astype(int)
-    print(wavetable_size)
-    # wavetable = (2*np.random.randint(0, 2, wavetable_size) - 1).astype(np.float)
-    # wavetable = np.random.randint(-1, 1, wavetable_size, dtype=float)
-    wavetable = np.random.uniform(-1., 1., wavetable_size)
-
-    # todo: pre-allocate array of required size.
-    # todo: wrap up with frequency as arg.
-    samples = []
-    num_samples = 2*fs
-    current_sample = 0
-    previous_value = 0
-    while len(samples) < num_samples:
-        wavetable[current_sample] = 0.5*(wavetable[current_sample] + previous_value)
-        samples.append(wavetable[current_sample])
-        previous_value = samples[-1]  # todo: just use above.
-        current_sample = (current_sample + 1) % wavetable.size
-    samples = np.array(samples)
-    return samples
 
 def sin(frequency, samples):
     # todo: remove when no longer needed.
@@ -124,33 +80,25 @@ def sin(frequency, samples):
 def save_wav(signal, filename='tmp.wav'):
     """Save to WAV file."""
     filepath = os.path.join(folder, filename)
-    print(signal[0].dtype)
     wavfile.write(filepath, fs, signal)
 
-def main():
+def main_harmonics():
     duration = 1  # [s]
     samples = np.arange(duration * fs) / fs
     
     # Construct signal.
-    # todo: timbre of guitar.
-    chromas = [Chroma.C]
-    # chromas = get_major_triad(Chroma.C)
-    octave = 4  # todo: what if notes not all in same octave?
+    # chromas = [Chroma.C]
+    chromas = get_major_triad(Chroma.C)
+    octave = 4  # todo: what if notes not all in same octave? Handle in scales.py.
     signal = np.zeros(len(samples))
-    # signal = np.zeros(2*len(samples))  # todo: remove this hack for Karplus-Strong.
     for chroma in chromas:
         midi = note_to_midi(chroma, octave)
         frequency = midi_to_frequency(midi)
-        print(f'Frequency [Hz]: {frequency}')
+        # print(f'Frequency [Hz]: {frequency}')
         signal += sin(frequency, samples)
-        # tmp = karplus_strong(frequency)
-        # print(signal.shape)
-        # print(tmp.shape)
-        # print()
-        # signal += tmp
     signal /= len(chromas)  # Normalise.
     signal *= 32767  # Scale to fill WAV file range?
-    signal = np.int16(signal)  # todo: set this from the start.
+    signal = np.int16(signal)  # todo: set this from the start?
 
     # Plot.
     plt.figure()
@@ -161,20 +109,54 @@ def main():
     # Save to WAV file.
     save_wav(signal)
 
-if __name__ == '__main__':
-    # main()
-    # karplus_strong()
-    
-    frequency = 55  # From example.
+def main_ks():
+    """Karplus-Strong, one frequency."""
+    # frequency = 55  # From example.
     # frequency = 261.26  # C4
-    # frequency = 440
-    duration = 1
+    frequency = 440  # A4
+    # duration = 1
     # num_samples = fs*duration + 1
-    signal = ks2(frequency, duration)
+    signal = karplus_strong(frequency)
 
     plt.figure()
     plt.plot(signal)
     # plt.xlim(0, 1000)
     plt.show()
 
-    save_wav(signal)
+    # save_wav(signal)
+
+def main_ks2():
+    """Karplus-Strong, multiple frequencies.
+    
+    todo:
+    Ensure smooth fade-out at end of array?
+    Why do signals not end at zero? Bug? Do they in example?
+    """
+    # Choose frequencies.
+    chromas = get_major_triad(Chroma.C)
+    octave = 4  # todo: what if notes not all in same octave? Handle in scales.py.
+    frequencies = [midi_to_frequency(note_to_midi(c, octave)) for c in chromas]
+
+    # Construct signal.
+    signal = np.zeros(2*fs, dtype=np.float32)
+    # plt.figure()
+    for frequency in frequencies:
+        signal += karplus_strong(frequency)
+    #     plt.plot(signal, label=f'{frequency:.0f} Hz')
+    # plt.legend()
+    # plt.show()
+    signal /= len(chromas)  # Normalise. How best?
+
+    # Plot.
+    plt.figure()
+    plt.title('Waveform')
+    plt.plot(signal)
+    plt.show()
+
+    # Save to WAV file.
+    save_wav(signal, 'KS C major triad.wav')
+
+if __name__ == '__main__':
+    # main_harmonics()
+    # main_ks()
+    main_ks2()

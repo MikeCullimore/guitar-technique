@@ -8,7 +8,8 @@ Differentiate between enharmonic notes e.g. C# and D♭.
 Add minor variants: harmonic, melodic.
 Capture circle of fifths?
 Chord inversions (separate file?).
-Specify octave as offset from root? (Then transpose by octave(s).)
+Specify octave of root note.
+    Then transpose by octave(s).
 Power chords.
 """
 

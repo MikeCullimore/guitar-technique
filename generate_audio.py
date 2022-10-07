@@ -10,6 +10,8 @@ Add audio to animations: MoviePy.
 Save waveform plots.
 For chords and sequences of notes, add onset delay between each.
 Improve Karplus-Strong implementation.
+    Add stretch factor? Other ways of extending initial noisy transient?
+    Improve understanding of how it works: animate wavetable modification.
     Tune parameters to sound guitar-like.
     Timbre of guitar or piano.
     https://flothesof.github.io/Karplus-Strong-algorithm-Python.html (also includes moviepy animation!)
@@ -73,41 +75,10 @@ def karplus_strong(frequency):
     
     return signal
 
-def sin(frequency, samples):
-    # todo: remove when no longer needed.
-    return np.sin(2 * np.pi * frequency * samples)
-
 def save_wav(signal, filename='tmp.wav'):
     """Save to WAV file."""
     filepath = os.path.join(folder, filename)
     wavfile.write(filepath, fs, signal)
-
-def main_harmonics():
-    duration = 1  # [s]
-    samples = np.arange(duration * fs) / fs
-    
-    # Construct signal.
-    # chromas = [Chroma.C]
-    chromas = get_major_triad(Chroma.C)
-    octave = 4  # todo: what if notes not all in same octave? Handle in scales.py.
-    signal = np.zeros(len(samples))
-    for chroma in chromas:
-        midi = note_to_midi(chroma, octave)
-        frequency = midi_to_frequency(midi)
-        # print(f'Frequency [Hz]: {frequency}')
-        signal += sin(frequency, samples)
-    signal /= len(chromas)  # Normalise.
-    signal *= 32767  # Scale to fill WAV file range?
-    signal = np.int16(signal)  # todo: set this from the start?
-
-    # Plot.
-    plt.figure()
-    plt.title('Waveform')
-    plt.plot(samples, signal)
-    plt.show()
-
-    # Save to WAV file.
-    save_wav(signal)
 
 def main_ks():
     """Karplus-Strong, one frequency."""
@@ -154,9 +125,8 @@ def main_ks2():
     plt.show()
 
     # Save to WAV file.
-    save_wav(signal, 'KS C major triad.wav')
+    # save_wav(signal, 'KS C major triad.wav')
 
 if __name__ == '__main__':
-    # main_harmonics()
     # main_ks()
     main_ks2()

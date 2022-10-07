@@ -4,11 +4,12 @@ scales.py
 todo:
 Combine this with note to neck position lookup to generate scale exercises.
     Or shift focus to scale patterns instead?
+    For chords, needs to be shapes not patterns!
 Differentiate between enharmonic notes e.g. C# and D♭.
 Add minor variants: harmonic, melodic.
 Capture circle of fifths?
 Chord inversions (separate file?).
-Specify octave of root note.
+Specify octave of root note. Default to 4.
     Then transpose by octave(s).
 Power chords.
 """

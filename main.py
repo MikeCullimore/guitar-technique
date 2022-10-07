@@ -43,7 +43,6 @@ Generate synchronised audio.
     Click track/metronome at given tempo for scales, arpeggios etc.
     Play along to given recording.
     Try generating sine waves: https://stackoverflow.com/questions/48043004/how-do-i-generate-a-sine-wave-using-python
-Interface to other formats e.g. MusicXML?
 Type annotations.
 """
 

@@ -1,7 +1,11 @@
 """
 metronome.py
 
+Experimenting with metronome using link below.
+
 https://stackoverflow.com/questions/51389691/how-can-i-do-a-precise-metronome
+
+Easier and cleaner to insert into videos instead?
 """
 
 from time import sleep, perf_counter

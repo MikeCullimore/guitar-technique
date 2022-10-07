@@ -2,7 +2,6 @@
 Playing with animations for guitar scales.
 
 todo:
-Rename this file once scope is clearly defined.
 Power chords.
 Text printout of neck (see e.g. https://en.wikipedia.org/wiki/Power_chord)
 Abstraction(s) for building up arrays of positions.
@@ -31,18 +30,11 @@ Improve images:
     Equally spaced frets? (Don't need realism, better use of space.) As option?
     Option to look at guitar as if held by someone else.
 Handle open strings as fret 0. marker at left edge (nut)?
-Module(s).
-    Separate anything common to guitar, piano etc. (music theory).
-    Separate repo per component?
 Extend to other modes (Dorian etc.).
 Input raw audio, extract notes (e.g. via librosa chromagram).
     Turns out this is a very challenging, not fully solved, problem.
     Then change transparency of dots based on volume and animate at say 25 FPS (rather than binary note on/off).
 Include bends, hammer-ons, pull-offs.
-Generate synchronised audio.
-    Click track/metronome at given tempo for scales, arpeggios etc.
-    Play along to given recording.
-    Try generating sine waves: https://stackoverflow.com/questions/48043004/how-do-i-generate-a-sine-wave-using-python
 Type annotations.
 """
 

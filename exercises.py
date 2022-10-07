@@ -12,6 +12,7 @@ Option to skip an exercise?
 Select random subset (once list gets too long)?
 Chords: loop a list (say four chords?).
 Play a song, guess the key (identify the chords).
+Piano equivalent (scales, arpeggios, broken chords, pieces).
 """
 
 import random

@@ -2,6 +2,10 @@
 
 Tools to help improve guitar-playing technique.
 
+# todo
+
+* Explain how to setup, install, run.
+
 ## Project goals
 
 * Make technical exercises more fun: turn them into a game.

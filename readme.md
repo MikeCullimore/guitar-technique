@@ -5,6 +5,7 @@ Tools to help improve guitar-playing technique.
 # todo
 
 * Explain how to setup, install, run.
+* Add example screenshot (can't embed video in markdown).
 
 ## Project goals
 

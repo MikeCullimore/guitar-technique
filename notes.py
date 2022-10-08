@@ -53,6 +53,9 @@ def note_to_midi(chroma, octave):
 def midi_to_frequency(midi):
     return A4_FREQUENCY*2**((midi - MIDI_A4)/len_chroma)
 
+def note_to_frequency(chroma, octave):
+    return midi_to_frequency(note_to_midi(chroma, octave))
+
 def main():
     midi = 21
     piano = midi_to_piano(midi)

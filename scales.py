@@ -100,6 +100,14 @@ def get_triads_in_major_key(chroma):
         triad = get_major_triad(note)
         print(notes_str(triad))
 
+def append_reversed_sequence(sequence, loop=True):
+    """Given a sequence, reverse it and append it (without repeating the middle position).
+
+    Useful to e.g. take an ascending scale and descend it.
+    """
+    stop = -len(sequence) if loop else None
+    return sequence + sequence[-2:stop:-1]
+
 def notes_str(notes):
     return ', '.join([note.name for note in notes])
 

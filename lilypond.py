@@ -12,6 +12,9 @@ Fix PNG output.
     Works when calling lilypond directly at the command line.
     Fails even when input file is in current folder.
     Fails with both os.system and subprocess.run.
+    Convert a working format (PDF, SVG) to PNG by another means?
+        GIMP? https://www.gimp.org/docs/python/index.html
+        Could also be useful for other image manipulation tasks later on (e.g. compositing frames).
     Example error:
         GNU LilyPond 2.22.2
         Processing `data/test.ly'
@@ -30,10 +33,8 @@ import inspect
 import os.path
 import subprocess
 
-def check_version():
-    print(subprocess.check_output(['lilypond',  '--version']))
-
 def notes():
+    # Save Lilypond input to file.
     text = inspect.cleandoc("""
         \\version "2.22.2"
         {    
@@ -45,9 +46,7 @@ def notes():
     with open(filepath, 'w') as f:
         f.write(text)
     
-    # todo: need the output? Check for errors?
-    # todo: fix PNG output. Works from command line! Convert from SVG?
-    # todo: specify output path.
+    # Pass file to Lilypond with desired args.
     format = 'svg'  # works
     # format = 'png'  # fails
     commands = ['lilypond', f'--format={format}', f'--output={folder}', filepath]
@@ -56,7 +55,6 @@ def notes():
     print(completed_process.stderr)
 
 def main():
-    # check_version()
     notes()
 
 if __name__ == '__main__':

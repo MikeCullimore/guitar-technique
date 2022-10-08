@@ -2,6 +2,7 @@
 Playing with animations for guitar scales.
 
 todo:
+All positions for each scale.
 Power chords.
 Text printout of neck (see e.g. https://en.wikipedia.org/wiki/Power_chord)
 Abstraction(s) for building up arrays of positions.
@@ -39,14 +40,7 @@ Type annotations.
 """
 
 from neck_renderer import NeckRenderer
-
-def append_reversed_sequence(sequence, loop=True):
-    """Given a sequence, reverse it and append it (without repeating the middle position).
-
-    Useful to e.g. take an ascending scale and descend it.
-    """
-    stop = -len(sequence) if loop else None
-    return sequence + sequence[-2:stop:-1]
+from scales import append_reversed_sequence
 
 def main():
     # Define pentatonic shape (tuples of (string, fret)).

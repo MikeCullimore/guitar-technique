@@ -10,7 +10,10 @@ import os.path
 from PIL import Image
 
 def bpm_to_milliseconds(bpm):
-    """Convert beats per minute (BPM) to milliseconds."""
+    """Convert beats per minute (BPM) to milliseconds.
+    
+    todo: move this function to a more appropriate file (which?).
+    """
     return 60000/bpm
 
 class NeckRenderer:

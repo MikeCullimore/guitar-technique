@@ -42,9 +42,21 @@ Type annotations.
 from neck_renderer import NeckRenderer
 from scales import append_reversed_sequence
 
-def main():
-    # Define pentatonic shape (tuples of (string, fret)).
+def animate(sequence, filename, bpm):
+    """Generate images and save as animation.
+    
+    todo:
+    Generate incrementally rather than load all images into memory.
+    Change input format to array of positions and onsets, use same input to audio.
+        Flexible enough?
+    """
+    neck_renderer = NeckRenderer()
+    neck_renderer.animate(sequence, filename, bpm)
+
+def pentatonic():
+    """Minor pentatonic shape."""
     # todo: transpose to given key/root note.
+    # todo: convert to list of frequencies.
     pentatonic_ascending = [
         [(1, 12)],
         [(1, 15)],
@@ -62,19 +74,23 @@ def main():
     sequence = append_reversed_sequence(pentatonic_ascending)
     bpm = 120
     filename = f'pentatonic-bpm={bpm:d}.gif'
+    animate(sequence, filename, bpm)
 
-    # When the Sun Goes Down.
-    # B = [(1, 7), (2, 9), (3, 9), (4, 8), (5, 7), (6, 7)]
-    # C_SHARP_MINOR = [(2, 4), (3, 6), (4, 6), (5, 5), (6, 4)]
-    # D_SHARP_MINOR = [(2, 6), (3, 8), (4, 8), (5, 7), (6, 6)]
-    # D_SHARP_7 = [(2, 6), (3, 8), (4, 6), (5, 8), (6, 6)]
-    # E_7 = [(2, 7), (3, 9), (4, 7), (5, 9), (6, 7)]
-    # E_MAJOR_7 = [(2, 7), (3, 9), (4, 8), (5, 9), (6, 7)]
-    # F_SHARP_7 = [(2, 9), (3, 11), (4, 9), (5, 11), (6, 9)]
-    # sequence = [B, D_SHARP_7, E_MAJOR_7, D_SHARP_MINOR, E_MAJOR_7, D_SHARP_MINOR, C_SHARP_MINOR, F_SHARP_7, E_7, D_SHARP_MINOR, C_SHARP_MINOR, D_SHARP_MINOR]
-    # filename = 'When the Sun Goes Down.gif'
-    # bpm = 120/4
+def when_the_sun_goes_down():
+    """Arctic Monkeys: don't believe the hype! ;)"""
+    B = [(1, 7), (2, 9), (3, 9), (4, 8), (5, 7), (6, 7)]
+    C_SHARP_MINOR = [(2, 4), (3, 6), (4, 6), (5, 5), (6, 4)]
+    D_SHARP_MINOR = [(2, 6), (3, 8), (4, 8), (5, 7), (6, 6)]
+    D_SHARP_7 = [(2, 6), (3, 8), (4, 6), (5, 8), (6, 6)]
+    E_7 = [(2, 7), (3, 9), (4, 7), (5, 9), (6, 7)]
+    E_MAJOR_7 = [(2, 7), (3, 9), (4, 8), (5, 9), (6, 7)]
+    F_SHARP_7 = [(2, 9), (3, 11), (4, 9), (5, 11), (6, 9)]
+    sequence = [B, D_SHARP_7, E_MAJOR_7, D_SHARP_MINOR, E_MAJOR_7, D_SHARP_MINOR, C_SHARP_MINOR, F_SHARP_7, E_7, D_SHARP_MINOR, C_SHARP_MINOR, D_SHARP_MINOR]
+    filename = 'When the Sun Goes Down.gif'
+    bpm = 120/4
+    animate(sequence, filename, bpm)
 
+def arpeggios():
     # Arpeggios over two octaves in the key of D (D E F# G A B C#).
     # todo: show shape for current arpeggio then highlight each note within it.
     # todo: generate these given the key.
@@ -87,63 +103,64 @@ def main():
     # B minor: B D F#
     # C# half dim: C# E G
     # D major 
-    # sequence = [
-    #     [(2, 5)],
-    #     [(3, 4)],
-    #     [(4, 2)],
-    #     [(5, 3)],
-    #     [(6, 2)],
-    #     [(6, 5)],
-    #     [(2, 7)],
-    #     [(3, 5)],
-    #     [(4, 4)],
-    #     [(5, 5)],
-    #     [(6, 3)],
-    #     [(6, 7)],
-    #     [(2, 9)],
-    #     [(3, 7)],
-    #     [(4, 6)],
-    #     [(5, 7)],
-    #     [(6, 5)],
-    #     [(6, 9)],
-    #     [(2, 10)],
-    #     [(3, 9)],
-    #     [(4, 7)],
-    #     [(5, 8)],
-    #     [(6, 7)],
-    #     [(6, 10)],
-    #     [(2, 12)],
-    #     [(3, 11)],
-    #     [(4, 9)],
-    #     [(5, 10)],
-    #     [(6, 9)],
-    #     [(6, 12)],
-    #     [(2, 14)],
-    #     [(3, 12)],
-    #     [(4, 11)],
-    #     [(5, 12)],
-    #     [(6, 10)],
-    #     [(6, 14)],
-    #     [(2, 16)],
-    #     [(3, 14)],
-    #     [(4, 12)],
-    #     [(5, 14)],
-    #     [(6, 12)],
-    #     [(6, 15)],
-    #     [(2, 17)],
-    #     [(3, 16)],
-    #     [(4, 14)],
-    #     [(5, 15)],
-    #     [(6, 14)],
-    #     [(6, 17)],
-    # ]
-    # bpm = 60
-    # filename = 'Arpeggios over two octaves in D.gif'
-    
-    # Generate images and save as animation.
-    # todo: generate incrementally rather than load all images into memory.
-    neck_renderer = NeckRenderer()
-    neck_renderer.animate(sequence, filename, bpm)
+    sequence = [
+        [(2, 5)],
+        [(3, 4)],
+        [(4, 2)],
+        [(5, 3)],
+        [(6, 2)],
+        [(6, 5)],
+        [(2, 7)],
+        [(3, 5)],
+        [(4, 4)],
+        [(5, 5)],
+        [(6, 3)],
+        [(6, 7)],
+        [(2, 9)],
+        [(3, 7)],
+        [(4, 6)],
+        [(5, 7)],
+        [(6, 5)],
+        [(6, 9)],
+        [(2, 10)],
+        [(3, 9)],
+        [(4, 7)],
+        [(5, 8)],
+        [(6, 7)],
+        [(6, 10)],
+        [(2, 12)],
+        [(3, 11)],
+        [(4, 9)],
+        [(5, 10)],
+        [(6, 9)],
+        [(6, 12)],
+        [(2, 14)],
+        [(3, 12)],
+        [(4, 11)],
+        [(5, 12)],
+        [(6, 10)],
+        [(6, 14)],
+        [(2, 16)],
+        [(3, 14)],
+        [(4, 12)],
+        [(5, 14)],
+        [(6, 12)],
+        [(6, 15)],
+        [(2, 17)],
+        [(3, 16)],
+        [(4, 14)],
+        [(5, 15)],
+        [(6, 14)],
+        [(6, 17)],
+    ]
+    bpm = 60
+    filename = 'Arpeggios over two octaves in D.gif'
+    animate(sequence, filename, bpm)
+
+def main():
+    pentatonic()
+    # when_the_sun_goes_down()
+    # arpeggios()
 
 if __name__ == '__main__':
     main()

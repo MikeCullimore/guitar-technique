@@ -2,6 +2,7 @@
 scales.py
 
 todo:
+Number of octaves as arg.
 Combine this with note to neck position lookup to generate scale exercises.
     Or shift focus to scale patterns instead?
     For chords, needs to be shapes not patterns!
@@ -27,6 +28,7 @@ minor_pentatonic_scale_degrees = [1, 3, 4, 5, 7]  # (Of the natural minor scale 
 major_pentatonic_scale_degrees = [1, 2, 3, 5, 6]  # (Of the natural minor scale with the same root.)
 
 def get_notes_in_scale(chroma, intervals):
+    """todo: account for octave: initial as arg, then each time counter loops round chroma list, increment. Default: 4."""
     i = chroma_list.index(chroma)
     notes = [chroma]
     for interval in intervals:

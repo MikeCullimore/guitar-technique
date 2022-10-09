@@ -1,6 +1,6 @@
 # Guitar technique
 
-Tools to help improve guitar-playing technique.
+Tools to help improve guitar-playing technique and understanding of music theory.
 
 # todo
 
@@ -17,6 +17,24 @@ Tools to help improve guitar-playing technique.
 * Experiment with web APIs (e.g. web audio).
 * Play with data visualisation and analysis.
 * Play with interesting tools: Rust, TypeScript, Node/Deno, React, Express, Redux, MongoDB, Go, WebAssembly?
+
+## Setup
+
+To generate music scores you will need to install [GNU Lilypond](lilypond.org).
+
+### Activating the virtual environment
+
+Linux: at bash prompt, from root directory:
+```
+source venv/bin/activate
+```
+
+### Installing dependencies
+
+(After activating the virtual environment)
+```
+pip install -r requirements.txt
+```
 
 ## Useful links
 

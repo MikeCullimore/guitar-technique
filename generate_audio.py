@@ -1,13 +1,14 @@
 """
 generate_audio.py
 
-Play with generating audio.
+Generate audio for guitar.
 
 https://stackoverflow.com/questions/48043004/how-do-i-generate-a-sine-wave-using-python
 
 todo:
 Generate audio file matched to animation, e.g. pentatonic scale at 60 BPM.
 Smooth fade-out at end.
+Click track? (Optional?)
 Save waveform plots.
 For chords and sequences of notes, add onset delay between each.
     Classes Guitar, GuitarString?
@@ -81,8 +82,17 @@ def karplus_strong(frequency, smoothing_factor=0.5):
     Karplus-Strong string synthesis.
 
     todo:
+    Wrap up as class: WavetableGroup? (Nothing guitar specific.)
+        Maintains wavetable for each string, combines in single output.
+        Single wavetable even, just need pointer position and wavetable size per string?
+        Automatically remove wavetable when amplitude drops below threshold?
+    Ensure amplitude always in range [-1, 1], otherwise will clip.
     Handle multiple frequencies at this level? E.g. by combining wavetables?
     Animate wavetable modification (becomes travelling sine wave and amplitude decays).
+    Possible to derive analytic expression for amplitude vs time?
+        Use to decide window: continue until amplitude below threshold.
+        Also reduce discrepancy in sustain between high and low frequency notes: unlike guitar.
+    Optimise (numpy? numba? Cython?).
     """
     if (smoothing_factor < 0) or (smoothing_factor > 1):
         raise ValueError(f'smoothing_factor must be in the range [0, 1].')
@@ -98,6 +108,7 @@ def karplus_strong(frequency, smoothing_factor=0.5):
     # plt.plot(wavetable)
     # plt.show()
 
+    # Generate signal.
     signal = np.zeros(num_samples, dtype=np.float32)
     current_sample = 0
     previous_value = 0
@@ -128,6 +139,42 @@ def save_wav(signal, filename='tmp.wav'):
 def play_wav(filepath):
     """Play WAV file."""
     return subprocess.run(['aplay', filepath])
+
+def bpm_to_onsets(bpm, num_beats, padding=100):
+    """Convert BPM and number of beats to onset times.
+    
+    todo:
+    Use this to generate images and audio.
+    Add a little randomness?
+    """
+    ms = bpm_to_milliseconds(bpm)
+    return np.linspace(0, num_beats*ms, num_beats + 1) + padding
+
+def pluck_strings(frequencies, onsets):
+    """Generate signals and combine.
+    
+    todo:
+    Duration (samples) as argument to KS: only generate what we need.
+    Accommodate array of frequencies at each onset for chords.
+        (Add slight delay between each string?)
+    """
+    # Initialise output array.
+    num_samples = milliseconds_to_index(onsets[-1])
+    output = np.zeros(num_samples, dtype=np.float32)
+
+    # Generate signals and combine.
+    for onset, frequency in zip(onsets[:-1], frequencies):
+        component = karplus_strong(frequency)
+        start_index = milliseconds_to_index(onset)
+        end_index = np.min([num_samples, start_index + len(component)])
+        output[start_index:end_index] += component[:end_index-start_index]
+    
+    # Debugging: plot output.
+    plt.figure()
+    plt.plot(output)
+    plt.show()
+    
+    return output
 
 def main_ks():
     """Karplus-Strong, one frequency."""
@@ -184,9 +231,12 @@ def main_ks2():
     save_wav(signal, filename)
 
 def pentatonic_scale():
+    """
+    todo: separate function with args frequencies and onsets, return signal.
+    """
     # Define frequencies.
     # todo: span two octaves.
-    # todo: do not generate signal more than once for any given frequency.
+    # todo: do not generate signal more than once for any given frequency? But never same: random seed.
     scale = minor_pentatonic_scale(Chroma.A)
     octaves = [4, 5, 5, 5, 5]  # todo: handle in scales.py.
     frequencies = [note_to_frequency(chroma, octave) for (chroma, octave) in zip(scale, octaves)]
@@ -194,26 +244,11 @@ def pentatonic_scale():
 
     # Configure timings.
     bpm = 60
-    ms = bpm_to_milliseconds(bpm)
-    num_notes = len(frequencies)
-    padding_milliseconds = 100
-    total_milliseconds = num_notes*ms + 2*padding_milliseconds
-    num_samples = milliseconds_to_index(total_milliseconds)
-    output = np.zeros(num_samples, dtype=np.float32)
+    onsets = bpm_to_onsets(bpm, len(frequencies))
 
-    # Generate signals and combine.
-    # todo: duration (samples) as argument to KS: only generate what we need.
-    for i, f in enumerate(frequencies):
-        component = karplus_strong(f)
-        start_time = ms*i + padding_milliseconds
-        start_index = milliseconds_to_index(start_time)
-        end_index = np.min([num_samples, start_index + len(component)])
-        output[start_index:end_index] += component[:end_index-start_index]
+    # Generate output.
+    output = pluck_strings(frequencies, onsets)
     
-    plt.figure()
-    plt.plot(output)
-    plt.show()
-
     # Save to WAV file.
     filename = f'A minor pentatonic scale ascending and descending BPM={bpm:d}.wav'
     save_wav(output, filename)

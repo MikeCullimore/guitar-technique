@@ -34,11 +34,11 @@ class GuitarTuning:
         self._num_frets = num_frets
 
         # Build lookup tables to convert from position to note and vice versa.
-        self._position_to_notes = {}
+        self._positions_to_notes = {}
         self._notes_to_positions = {}
         for string in range(1, self._num_strings + 1):
             # Initialise empty lookup for this string.
-            self._position_to_notes[string] = {}
+            self._positions_to_notes[string] = {}
             
             # Get open string.
             chroma_open, octave_open = self._open_strings[string - 1]
@@ -55,7 +55,9 @@ class GuitarTuning:
         
                 # Add octave offset to octave of open string.
                 octave = octave_open + octave_offset
-                self._position_to_notes[string][fret] = (chroma, octave)
+                
+                # Store lookup value for this position.
+                self._positions_to_notes[string][fret] = (chroma, octave)
 
                 # If no entry for this chroma in inverse lookup, initialise it.
                 if chroma not in self._notes_to_positions.keys():
@@ -97,4 +99,4 @@ class GuitarTuning:
         if string > self._num_strings:
             raise ValueError(f'string must be <= {self._num_strings}.')
         
-        return self._position_to_notes[string][fret]
+        return self._positions_to_notes[string][fret]

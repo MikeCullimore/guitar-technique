@@ -7,26 +7,89 @@ todo:
 Read docs: https://zulko.github.io/moviepy/getting_started/videoclips.html
 Better to compose synchronised frames (functions of time) rather than combine existing files?
     AudioArrayClip: directly from array (no intermediate file).
-Just add images at specified times e.g. myclip.save_frame("frame.jpeg", t='01:00:00') # frame at time t=1h
+Just add images at specified times.
 Draw the desired end result as a guide: musical score, tab and fretboard stacked vertically.
     Piano variant without the tablature.
-Make folder name and get_filepath global?
 """
 
 import os.path
 
 import moviepy.editor as mpy
 
+from animations import animate
+from generate_audio import bpm_to_onsets, pluck_strings, save_wav
+from guitar_tuning import GuitarTuning
+from notes import note_to_frequency
+from scales import append_reversed_sequence
+
 folder = 'data'
 
 def get_filepath(filename):
+    """Prepend folder name.
+    
+    todo: use same everywhere rather than redefine in each file."""
     return os.path.join(folder, filename)
 
-def main():
-    animation = mpy.VideoFileClip(get_filepath('pentatonic.gif'))
-    audio = mpy.AudioFileClip(get_filepath('tmp.wav'))
+def combine_existing_files(filename_video='pentatonic.gif', filename_audio='tmp.wav', filename_output='tmp.webm'):
+    """Combines existing (unrelated) files just to test it all works."""
+    animation = mpy.VideoFileClip(get_filepath(filename_video))
+    audio = mpy.AudioFileClip(get_filepath(filename_audio))
     video = animation.set_audio(audio)  # Returns a new video clip!
-    video.write_videofile(get_filepath('tmp.webm'))
+    video.write_videofile(get_filepath(filename_output))
+
+def pentatonic():
+    """E minor pentatonic scale."""
+    # Define pentatonic scale shape.
+    # todo: revert to array of arrays to accommodate chords. (Implies array of array of frequencies.)
+    # todo: move this shape into separate file; provide getter with root note arg.
+    pentatonic_ascending = [
+        [(1, 12)],
+        [(1, 15)],
+        [(2, 12)],
+        [(2, 14)],
+        [(3, 12)],
+        [(3, 14)],
+        [(4, 12)],
+        [(4, 14)],
+        [(5, 12)],
+        [(5, 15)],
+        [(6, 12)],
+        [(6, 15)],
+    ]
+    positions = append_reversed_sequence(pentatonic_ascending)
+
+    # Convert to frequencies.
+    # todo: accommodate multiple frequencies at any given time.
+    tuning = GuitarTuning()
+    notes = [tuning.position_to_note(*position[0]) for position in positions]  # hack: see above.
+    frequencies = [note_to_frequency(chroma, octave) for (chroma, octave) in notes]
+    print(frequencies)
+
+    # Configure timings.
+    bpm = 100
+    onsets = bpm_to_onsets(bpm, len(frequencies))
+
+    # # Generate audio output.
+    # output = pluck_strings(frequencies, onsets)
+    
+    # Save to WAV file.
+    # todo: name should reflect which E is the root. (Could be open string.)
+    fileroot = f'E minor pentatonic scale two octaves first position ascending and descending BPM={bpm:d}'
+    filename_audio = fileroot + '.wav'  # todo: not os.path.join()? What then?
+    # save_wav(output, filename_audio)
+
+    # Generate animation.
+    # todo: handle padding (black frame?).
+    # todo: loop.
+    filename_animation = fileroot + '.gif'  # todo: not os.path.join()? What then?
+    animate(positions, filename_animation, bpm)
+
+    # Combine animation with audio.
+    # todo: last note doesn't play: why?
+    # todo: should be out of sync given audio has padding, animation doesn't. Why not then?
+    filename_output = fileroot + '.webm'  # todo: not os.path.join()? What then?
+    combine_existing_files(filename_animation, filename_audio, filename_output)
 
 if __name__ == '__main__':
-    main()
+    # combine_existing_files()
+    pentatonic()

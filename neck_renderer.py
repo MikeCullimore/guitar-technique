@@ -2,6 +2,14 @@
 NeckRenderer
 
 Render images of the neck with markers at the given positions.
+
+todo:
+Handle different colours e.g. show left hand position, but colours indicate
+    which notes played when (e.g. Zephyr Song intro).
+Generate static images:
+    For every note, all positions (every A, every A# etc.)
+    For every key, all notes in that key (mark as root, third, fifth etc.).
+    Flexible enough to adapt to other tunings.
 """
 
 
@@ -46,6 +54,7 @@ class NeckRenderer:
         Input validation
         Error handling
         Generator rather than load all images at once.
+        Refactor as return [self.render_image(p) for p in sequence]?
         """
         images = []
         for positions in sequence:

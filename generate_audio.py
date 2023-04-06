@@ -6,7 +6,7 @@ Generate audio for guitar.
 https://stackoverflow.com/questions/48043004/how-do-i-generate-a-sine-wave-using-python
 
 todo:
-Generate audio file matched to animation, e.g. pentatonic scale at 60 BPM.
+Tuning trick in original paper p8 to get closer to desired frequency.
 Smooth fade-out at end.
 Click track? (Optional?)
 Save waveform plots.
@@ -14,22 +14,23 @@ For chords and sequences of notes, add onset delay between each.
     Classes Guitar, GuitarString?
     Reverse delay order for upstrokes.
 Improve Karplus-Strong implementation.
-    Duration as argument.
+    Amplitude as arg.
+    Stretch factor as per 1983 KS paper. Also blend factor?
     Lift out low pass filter for use elsewhere.
     Tune parameters to sound guitar-like.
         Simulate guitar body resonance with low-pass filters.
-    Timbre of guitar or piano.
     These links have (1) chords (2) better sound (via more parameters) (3) [random] delay between each string, reversed for upstrokes
     http://amid.fish/javascript-karplus-strong
         https://github.com/mrahtz/javascript-karplus-strong
         http://amid.fish/karplus-strong
     Add stretch factor? Other ways of extending initial noisy transient?
     Improve understanding of how it works: animate wavetable modification.
+        Plot wavetable and output waveform (vertical line indicating current time) together.
         See also first-order low pass filters: https://en.wikipedia.org/wiki/Low-pass_filter#First_order
     https://flothesof.github.io/Karplus-Strong-algorithm-Python.html (also includes moviepy animation!)
     https://users.soe.ucsc.edu/~karplus/papers/digitar.pdf
     https://introcs.cs.princeton.edu/java/assignments/guitar.html
-Add effects e.g. distortion, delay, compression.
+Add effects e.g. distortion, reverb, delay, compression.
 Use PyGame? https://www.pygame.org/wiki/about
 Listen to samples here: https://freesound.org/search/?q=guitar+string
 Play back programmatically:
@@ -84,14 +85,14 @@ def karplus_strong(frequency, smoothing_factor=0.5):
     todo:
     Wrap up as class: WavetableGroup? (Nothing guitar specific.)
         Maintains wavetable for each string, combines in single output.
-        Single wavetable even, just need pointer position and wavetable size per string?
         Automatically remove wavetable when amplitude drops below threshold?
     Ensure amplitude always in range [-1, 1], otherwise will clip.
     Handle multiple frequencies at this level? E.g. by combining wavetables?
     Animate wavetable modification (becomes travelling sine wave and amplitude decays).
     Possible to derive analytic expression for amplitude vs time?
+        See paper Karplus and Strong 1983.
         Use to decide window: continue until amplitude below threshold.
-        Also reduce discrepancy in sustain between high and low frequency notes: unlike guitar.
+    Arg for different initial wavetable options: white noise, +/-1, sine chirp, ...?
     Optimise (numpy? numba? Cython?).
     """
     if (smoothing_factor < 0) or (smoothing_factor > 1):
@@ -178,13 +179,16 @@ def pluck_strings(frequencies, onsets):
 
 def main_ks():
     """Karplus-Strong, one frequency."""
+    # frequency = 27.5  # Lowest note on a piano.
     # frequency = 55  # From example.
     # frequency = 261.26  # C4
     frequency = 440  # A4
     # duration = 1
     # num_samples = fs*duration + 1
+    
+    # Compare different values of smoothing factor to understand its effect.
     for sf in [0.3, 0.5, 0.7]:
-        signal = karplus_strong(frequency)
+        signal = karplus_strong(frequency, sf)
 
         plt.figure()
         plt.title(f'f = {frequency:.0f} Hz, sf = {sf:.1f}')
@@ -254,6 +258,6 @@ def pentatonic_scale():
     save_wav(output, filename)
 
 if __name__ == '__main__':
-    # main_ks()
+    main_ks()
     # main_ks2()
-    pentatonic_scale()
+    # pentatonic_scale()

@@ -2,6 +2,7 @@
 Guitar exercises: structured practice sessions.
 
 todo:
+E natural minor open position.
 "Quasi-chromatic scale": finger positions 1-2-3-4 across all strings.
     Then randomise order.
     Different orders ascending and descending.

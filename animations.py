@@ -2,6 +2,7 @@
 Playing with animations for guitar scales.
 
 todo:
+Handle open strings as fret 0. marker at left edge (nut)?
 All positions for each scale.
 Power chords.
 Text printout of neck (see e.g. https://en.wikipedia.org/wiki/Power_chord)
@@ -30,7 +31,6 @@ Improve images:
     Display note names, intervals.
     Equally spaced frets? (Don't need realism, better use of space.) As option?
     Option to look at guitar as if held by someone else.
-Handle open strings as fret 0. marker at left edge (nut)?
 Extend to other modes (Dorian etc.).
 Input raw audio, extract notes (e.g. via librosa chromagram).
     Turns out this is a very challenging, not fully solved, problem.
@@ -48,6 +48,7 @@ def animate(sequence, filename, bpm):
     todo:
     Generate incrementally rather than load all images into memory.
     Change input format to array of positions and onsets, use same input to audio.
+        ASCII tab?
         Flexible enough?
     """
     neck_renderer = NeckRenderer()

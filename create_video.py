@@ -4,6 +4,10 @@ create_video.py
 Combine images and audio into single video file.
 
 todo:
+Create videos for all major, minor and pentatonic scales.
+    Define pattern for each scale type.
+    Shift to root note (do for all).
+    
 Read docs: https://zulko.github.io/moviepy/getting_started/videoclips.html
 Better to compose synchronised frames (functions of time) rather than combine existing files?
     AudioArrayClip: directly from array (no intermediate file).

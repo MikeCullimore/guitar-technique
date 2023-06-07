@@ -6,6 +6,10 @@ Tools to help improve guitar-playing technique and understanding of music theory
 
 * Explain how to setup, install, run.
 * Add example screenshot (can't embed video in markdown).
+* Refactor as per notes in red book 7th June:
+    * Upload videos to YouTube.
+    * Click track audio for MVP.
+    * Phone view is neck only, tablet/desktop view adds e.g. stave, note name.
 
 ## Project goals
 

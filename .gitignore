@@ -1,2 +1,4 @@
 data/
 venv/
+.env
+client_secrets.json

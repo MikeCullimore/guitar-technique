@@ -6,6 +6,7 @@ Generate audio for guitar.
 https://stackoverflow.com/questions/48043004/how-do-i-generate-a-sine-wave-using-python
 
 todo:
+Improve tone (sounds like a gamelan!).
 Tuning trick in original paper p8 to get closer to desired frequency.
 Smooth fade-out at end.
 Click track? (Optional?)

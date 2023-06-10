@@ -7,9 +7,17 @@ Tools to help improve guitar-playing technique and understanding of music theory
 * Explain how to setup, install, run.
 * Add example screenshot (can't embed video in markdown).
 * Refactor as per notes in red book 7th June:
+    * CLI (argparse).
     * Upload videos to YouTube.
-    * Click track audio for MVP.
+    * Click track audio for MVP (essential to practise with a metronome).
     * Phone view is neck only, tablet/desktop view adds e.g. stave, note name.
+    * Small functions:
+        * make_video(inputs) -> video (= animation + audio)
+        * make_animation(inputs) -> animation
+        * make_audio(inputs) -> audio
+        * make_midi(scale, tempo) -> midi (use as input to animation, audio to sync)
+    * Make practise sessions by combining videos (scales, note finding etc.)
+
 
 ## Project goals
 

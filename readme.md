@@ -17,6 +17,8 @@ Tools to help improve guitar-playing technique and understanding of music theory
         * make_audio(inputs) -> audio
         * make_midi(scale, tempo) -> midi (use as input to animation, audio to sync)
     * Make practise sessions by combining videos (scales, note finding etc.)
+    * Views: guitar fretboard, piano, stave (each will need a renderer).
+* Ear trainer: play notes separately (melodic) then together (harmonic), show positions.
 
 
 ## Project goals

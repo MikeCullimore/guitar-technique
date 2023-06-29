@@ -7,6 +7,9 @@
 # TODO: optimise dimensions and DPI for phone and tablet (save both).
 # TODO: how to integrate sheet music? Just paste as image?
 # TODO: make indexing for frets and notes consistent (missing fret 0?).
+# TODO: enforce minimum sizes, line widths (not sub-pixel).
+# TODO: specify bounding box, dimensions within it normalised to [0, 1],
+# use this to combine e.g. fretboard and piano in single frame.
 
 from dataclasses import dataclass
 import math
@@ -19,6 +22,14 @@ class NoteMarker:
     string: int
     fret: int
 
+@dataclass
+class Point:
+    x: float
+    y: float
+
+    def __str__(self):
+        return f"({self.x:.3f}, {self.y:.3f})"
+
 
 # TODO: no global state!
 num_strings = 6
@@ -29,7 +40,9 @@ c1 = 7.52403813
 b = (100 - 2*padding)/100
 # strokeWidth = .3
 string_sizes = [.1, .15, .2, .25, .3, .35]  # TODO: adapt for bass etc. (just define min and max then interpolate).
-scaling = 5  # TODO: remove need for this (proper dimensions).
+scaling = 10  # TODO: remove need for this (proper dimensions).
+image_width = 2220
+image_height = 1080
 
 
 def draw_line(context, x1, y1, x2, y2):
@@ -82,9 +95,49 @@ def draw_notes(context, notes: List[NoteMarker]):
             draw_circle(context, x, y, r)  # TODO: fill
 
 
+def transform_global_to_normed(x1, y1, x2, y2):
+    def transform(x, y):
+        u = (x - x1)/(x2 - x1)
+        v = (y - y1)/(y2 - y1)
+        return u, v
+    return transform
+
+
+# TODO: return both transforms as a pair.
+def transform_normed_to_global(x1, y1, x2, y2):
+    def transform(u, v):
+        x = x1 + u*(x2 - x1)
+        y = y1 + v*(y2 - y1)
+        return x, y
+    return transform
+
+
+def debug_transform():
+    # TODO: Point dataclass. Do you get print for free? Does Cairo have?
+    x1 = 0
+    y1 = 0
+    x2 = image_width
+    y2 =  image_height
+    transform = transform_global_to_normed(x1, y1, x2, y2)
+    u1, v1 = transform(x1, y1)
+    u2, v2 = transform(x2, y2)
+    print(f'(u1, v1) = ({u1}, {v1})')
+    print(f'(u2, v2) = ({u2}, {v2})')
+
+    inverse = transform_normed_to_global(x1, y1, x2, y2)
+    u1 = 0
+    v1 = 0
+    u2 = 1
+    v2 = 1
+    x1, y1 = inverse(u1, v1)
+    x2, y2 = inverse(u2, v2)
+    print(f'(x1, y1) = ({x1}, {y1})')
+    print(f'(x2, y2) = ({x2}, {y2})')
+
+
 def main():
     # Create a new surface and context
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 500, 500)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, image_width, image_height)
     context = cairo.Context(surface)
 
     # Set white background
@@ -137,4 +190,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    debug_transform()

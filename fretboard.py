@@ -2,18 +2,16 @@
 Draws images of a guitar fretboard with given notes marked.
 
 TODO:
+Wrap in CLI?
 Adapt to different string numbers: bass, ukelele, extended guitar.
-Equal fret spacing: simpler.
 Show notes of open strings (tuning).
 MVP is static image of one scale one position, all markers same.
 Text labels on notes (note name or scale degree).
 Scale numbers as required.
-Draw 
+Draw inlays.
 Draw dimensions with padding etc.
-Separate function to get XY positions for given fret and string.
 Optimise dimensions and DPI for phone and tablet (save both).
 How to integrate sheet music? Just paste as image?
-Make indexing for frets and notes consistent (missing fret 0?).
 Enforce minimum sizes, line widths (not sub-pixel).
 Specify bounding box, dimensions within it normalised to [0, 1],
     use this to combine e.g. fretboard and piano in single frame.
@@ -43,67 +41,64 @@ class Point:
 # TODO: no global state!
 num_strings = 6
 num_frets = 22
-padding = 5
-c2 = -0.13827529
-c1 = 7.52403813
-b = (100 - 2*padding)/100
-# strokeWidth = .3
-scaling = 20  # TODO: remove need for this (proper dimensions).
+marker_radius = 40
 image_width = 2220
 image_height = 1080
+# TODO: optimise for tablet and laptop dimensions also.
 
 
-def draw_line(context, x1, y1, x2, y2):
-    context.move_to(x1, y1)
-    context.line_to(x2, y2)
+# TODO: transform in here so always drawing in norm space?
+def draw_line(context, start, finish):
+    context.move_to(start.x, start.y)
+    context.line_to(finish.x, finish.y)
     context.stroke()
 
 
-def draw_circle(context, x, y, r):
-    context.arc(x, y, r, 0, 2*math.pi)
-    context.stroke()
+def draw_circle(context, centre: Point, r):
+    context.arc(centre.x, centre.y, r, 0, 2*math.pi)
+    context.fill()
 
 
 def get_fret_x_position(fret):
-    return scaling*(padding + b*(c1*fret + c2*fret*fret))
+    # TODO: combine into (string, fret) -> (x, y) lookup?
+    # TODO: transform here?
+    return fret/num_frets
 
 
 def get_string_y_position(string):
-    # Make string spacing match closest fret spacing.
-    string_spacing = get_fret_x_position(num_frets) - get_fret_x_position(num_frets - 1)
-    return padding + string_spacing*string
+    # TODO: combine into (string, fret) -> (x, y) lookup?
+    # TODO: transform here?
+    return (string - 1)/(num_strings - 1)
 
 
-def draw_frets(context):
-    y1 = get_string_y_position(1)
-    y2 = get_string_y_position(num_strings)
-    for i in range(num_frets + 1):
-        x = get_fret_x_position(i)
-        draw_line(context, x, y1, x, y2)
+def draw_frets(context, normed_to_global):
+    for fret in range(num_frets + 1):
+        u = get_fret_x_position(fret)
+        start = normed_to_global(Point(u, 0))
+        finish = normed_to_global(Point(u, 1))
+        draw_line(context, start, finish)
 
 
-def draw_strings(context):
-    x1 = get_fret_x_position(0)
-    x2 = get_fret_x_position(num_frets)
-    for i in range(num_strings):
-        y = get_string_y_position(i + 1)
-        draw_line(context, x1, y, x2, y)
+def draw_strings(context, normed_to_global):
+    for string in range(num_strings):
+        v = get_string_y_position(string + 1)
+        start = normed_to_global(Point(0, v))
+        finish = normed_to_global(Point(1, v))
+        draw_line(context, start, finish)
 
 
-def draw_notes(context, notes: List[NoteMarker]):
+def draw_notes(context, notes: List[NoteMarker], normed_to_global):
     for note in notes:
-        r = .6*scaling
-        x = get_fret_x_position(note.fret) - r
-        y = get_string_y_position(note.string)
-        if note.fret == 0:
-            stroke_width = 0.1*scaling
-            context.set_line_width(stroke_width)
-            draw_circle(context, x - stroke_width, y, r)
-        else:
-            draw_circle(context, x, y, r)  # TODO: fill
+        r = 40  # TODO: account for this in padding. Make it smaller than closest fret.
+        u = get_fret_x_position(note.fret)  # TODO: minus r!
+        v = get_string_y_position(note.string)
+        centre = normed_to_global(Point(u, v))
+        centre.x -= marker_radius
+        draw_circle(context, centre, marker_radius)
 
 
 def get_transforms(top_left: Point, bottom_right: Point):
+    # TODO: do we need global_to_normed?
     def global_to_normed(point: Point):
         u = (point.x - top_left.x)/(bottom_right.x - top_left.x)
         v = (point.y - top_left.y)/(bottom_right.y - top_left.y)
@@ -117,25 +112,28 @@ def get_transforms(top_left: Point, bottom_right: Point):
     return global_to_normed, normed_to_global
 
 
-def debug_transform():
-    # TODO: Box wrapper to handle transforms underneath? Draw in (u, v).
-    tl = Point(0, 0)
-    br = Point(image_width, image_height)
-    global_to_normed, normed_to_global = get_transforms(tl, br)
-    a = global_to_normed(tl)
-    b = global_to_normed(br)
-    print(a)
-    print(b)
-
-    br2 = Point(1, 1)
-    c = normed_to_global(br2)
-    print(c)
+def chord_string_to_note_markers(chord_string):
+    note_markers = []
+    for i, char in enumerate(chord_string):
+        string = i + 1
+        if char != "x":
+            fret = int(char)
+            note_markers.append(NoteMarker(string, fret))
+    return note_markers
 
 
 def main():
     # Create a new surface and context
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, image_width, image_height)
     context = cairo.Context(surface)
+
+    # Establish coordinate system transforms.
+    # TODO: make padding a ratio of image size not absolute pixels.
+    padding_horizontal = 50
+    padding_vertical = 250
+    top_left = Point(padding_horizontal + 2*marker_radius, padding_vertical + marker_radius)
+    bottom_right = Point(image_width - padding_horizontal, image_height - padding_vertical - marker_radius)
+    _, normed_to_global = get_transforms(top_left, bottom_right)
 
     # Set white background
     white = (1, 1, 1)
@@ -146,37 +144,20 @@ def main():
     context.set_antialias(cairo.ANTIALIAS_BEST)
 
     # Set line width and color.
-    # TODO: move into draw functions.
+    # TODO: move into draw functions?
     black = (0, 0, 0)
     line_width = 5  # TODO: scale with image.
     context.set_line_width(line_width)
     context.set_source_rgb(*black)
 
-    draw_frets(context)
-    draw_strings(context)
+    draw_frets(context, normed_to_global)
+    draw_strings(context, normed_to_global)
 
     # Draw some notes.
-    notes = [
-        NoteMarker(1, 0),
-        NoteMarker(2, 5)
-    ]
-    draw_notes(context, notes)
-
-    # # Set rectangle properties
-    # context.set_line_width(2)
-    # context.set_source_rgb(1, 0, 0)  # Red color
-
-    # # Draw a rectangle
-    # context.rectangle(200, 200, 100, 200)
-    # context.stroke()
-
-    # # Set circle properties
-    # context.set_line_width(2)
-    # context.set_source_rgb(0, 0, 1)  # Blue color
-
-    # # Draw a circle
-    # context.arc(150, 350, 50, 0, 2 * 3.1415)
-    # context.stroke()
+    # TODO: add more chords!
+    G = '300023'
+    notes = chord_string_to_note_markers(G)
+    draw_notes(context, notes, normed_to_global)
 
     # # Set text properties
     # context.set_font_size(24)
@@ -192,4 +173,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # debug_transform()

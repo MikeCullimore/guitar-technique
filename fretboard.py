@@ -1,15 +1,24 @@
-# TODO: MVP is static image of one scale one position, all markers same.
-# TODO: draw notes.
-# TODO: text labels on notes (note name or scale degree).
-# TODO: scale numbers as required.
-# TODO: draw dimensions with padding etc.
-# TODO: separate function to get XY positions for given fret and string.
-# TODO: optimise dimensions and DPI for phone and tablet (save both).
-# TODO: how to integrate sheet music? Just paste as image?
-# TODO: make indexing for frets and notes consistent (missing fret 0?).
-# TODO: enforce minimum sizes, line widths (not sub-pixel).
-# TODO: specify bounding box, dimensions within it normalised to [0, 1],
-# use this to combine e.g. fretboard and piano in single frame.
+"""
+Draws images of a guitar fretboard with given notes marked.
+
+TODO:
+Adapt to different string numbers: bass, ukelele, extended guitar.
+Equal fret spacing: simpler.
+Show notes of open strings (tuning).
+MVP is static image of one scale one position, all markers same.
+Text labels on notes (note name or scale degree).
+Scale numbers as required.
+Draw 
+Draw dimensions with padding etc.
+Separate function to get XY positions for given fret and string.
+Optimise dimensions and DPI for phone and tablet (save both).
+How to integrate sheet music? Just paste as image?
+Make indexing for frets and notes consistent (missing fret 0?).
+Enforce minimum sizes, line widths (not sub-pixel).
+Specify bounding box, dimensions within it normalised to [0, 1],
+    use this to combine e.g. fretboard and piano in single frame.
+Can lines have rounded ends? If not, make own? Or switch to SVG?
+"""
 
 from dataclasses import dataclass
 import math
@@ -39,8 +48,7 @@ c2 = -0.13827529
 c1 = 7.52403813
 b = (100 - 2*padding)/100
 # strokeWidth = .3
-string_sizes = [.1, .15, .2, .25, .3, .35]  # TODO: adapt for bass etc. (just define min and max then interpolate).
-scaling = 10  # TODO: remove need for this (proper dimensions).
+scaling = 20  # TODO: remove need for this (proper dimensions).
 image_width = 2220
 image_height = 1080
 
@@ -61,23 +69,23 @@ def get_fret_x_position(fret):
 
 
 def get_string_y_position(string):
+    # Make string spacing match closest fret spacing.
     string_spacing = get_fret_x_position(num_frets) - get_fret_x_position(num_frets - 1)
-    return scaling*(padding + string_spacing*string)
+    return padding + string_spacing*string
 
 
 def draw_frets(context):
     y1 = get_string_y_position(1)
     y2 = get_string_y_position(num_strings)
-    for i in range(num_frets):
-        x = get_fret_x_position(i + 1)
+    for i in range(num_frets + 1):
+        x = get_fret_x_position(i)
         draw_line(context, x, y1, x, y2)
 
 
 def draw_strings(context):
-    x1 = get_fret_x_position(1)
+    x1 = get_fret_x_position(0)
     x2 = get_fret_x_position(num_frets)
     for i in range(num_strings):
-        context.set_line_width(string_sizes[i])
         y = get_string_y_position(i + 1)
         draw_line(context, x1, y, x2, y)
 
@@ -95,44 +103,33 @@ def draw_notes(context, notes: List[NoteMarker]):
             draw_circle(context, x, y, r)  # TODO: fill
 
 
-def transform_global_to_normed(x1, y1, x2, y2):
-    def transform(x, y):
-        u = (x - x1)/(x2 - x1)
-        v = (y - y1)/(y2 - y1)
-        return u, v
-    return transform
+def get_transforms(top_left: Point, bottom_right: Point):
+    def global_to_normed(point: Point):
+        u = (point.x - top_left.x)/(bottom_right.x - top_left.x)
+        v = (point.y - top_left.y)/(bottom_right.y - top_left.y)
+        return Point(u, v)
 
+    def normed_to_global(point: Point):
+        x = top_left.x + point.x*(bottom_right.x - top_left.x)
+        y = top_left.y + point.y*(bottom_right.y - top_left.y)
+        return Point(x, y)
 
-# TODO: return both transforms as a pair.
-def transform_normed_to_global(x1, y1, x2, y2):
-    def transform(u, v):
-        x = x1 + u*(x2 - x1)
-        y = y1 + v*(y2 - y1)
-        return x, y
-    return transform
+    return global_to_normed, normed_to_global
 
 
 def debug_transform():
-    # TODO: Point dataclass. Do you get print for free? Does Cairo have?
-    x1 = 0
-    y1 = 0
-    x2 = image_width
-    y2 =  image_height
-    transform = transform_global_to_normed(x1, y1, x2, y2)
-    u1, v1 = transform(x1, y1)
-    u2, v2 = transform(x2, y2)
-    print(f'(u1, v1) = ({u1}, {v1})')
-    print(f'(u2, v2) = ({u2}, {v2})')
+    # TODO: Box wrapper to handle transforms underneath? Draw in (u, v).
+    tl = Point(0, 0)
+    br = Point(image_width, image_height)
+    global_to_normed, normed_to_global = get_transforms(tl, br)
+    a = global_to_normed(tl)
+    b = global_to_normed(br)
+    print(a)
+    print(b)
 
-    inverse = transform_normed_to_global(x1, y1, x2, y2)
-    u1 = 0
-    v1 = 0
-    u2 = 1
-    v2 = 1
-    x1, y1 = inverse(u1, v1)
-    x2, y2 = inverse(u2, v2)
-    print(f'(x1, y1) = ({x1}, {y1})')
-    print(f'(x2, y2) = ({x2}, {y2})')
+    br2 = Point(1, 1)
+    c = normed_to_global(br2)
+    print(c)
 
 
 def main():
@@ -141,15 +138,19 @@ def main():
     context = cairo.Context(surface)
 
     # Set white background
-    context.set_source_rgb(1, 1, 1)  # White color
+    white = (1, 1, 1)
+    context.set_source_rgb(*white)
     context.paint()
 
     # Set antialiasing mode
     context.set_antialias(cairo.ANTIALIAS_BEST)
 
-    # Set line width and color
-    context.set_line_width(2)
-    context.set_source_rgb(0, 0, 0)  # Black color
+    # Set line width and color.
+    # TODO: move into draw functions.
+    black = (0, 0, 0)
+    line_width = 5  # TODO: scale with image.
+    context.set_line_width(line_width)
+    context.set_source_rgb(*black)
 
     draw_frets(context)
     draw_strings(context)
@@ -190,5 +191,5 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
-    debug_transform()
+    main()
+    # debug_transform()

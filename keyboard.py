@@ -13,6 +13,7 @@ Define vertices for each note then repeat for octaves.
     Check by colouring each key blue separately.
     Function to draw note: input note and colour (including transparency).
         Separate border and fill?
+    Explicitly draw white keys as white so not assuming white background.
 Operator overloads for point (add, subtract).
 Option to print note names on keys.
     Or scale degrees.

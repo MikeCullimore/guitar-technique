@@ -3,19 +3,17 @@ Draws images of a guitar fretboard with given notes marked.
 
 TODO:
 Wrap in CLI?
-Adapt to different string numbers: bass, ukelele, extended guitar.
 Show notes of open strings (tuning).
 MVP is static image of one scale one position, all markers same.
 Text labels on notes (note name or scale degree).
 Scale numbers as required.
-Draw inlays.
 Draw dimensions with padding etc.
 Optimise dimensions and DPI for phone and tablet (save both).
 How to integrate sheet music? Just paste as image?
 Enforce minimum sizes, line widths (not sub-pixel).
 Specify bounding box, dimensions within it normalised to [0, 1],
     use this to combine e.g. fretboard and piano in single frame.
-Can lines have rounded ends? If not, make own? Or switch to SVG?
+Adapt to different string numbers: bass, ukelele, extended guitar.
 """
 
 from dataclasses import dataclass
@@ -87,6 +85,7 @@ def draw_strings(context, normed_to_global):
         draw_line(context, start, finish)
 
 
+# TODO: refactor for single note so they can be different colours.
 def draw_notes(context, notes: List[NoteMarker], normed_to_global):
     for note in notes:
         r = 40  # TODO: account for this in padding. Make it smaller than closest fret.
@@ -95,6 +94,34 @@ def draw_notes(context, notes: List[NoteMarker], normed_to_global):
         centre = normed_to_global(Point(u, v))
         centre.x -= marker_radius
         draw_circle(context, centre, marker_radius)
+
+
+# TODO: grey: colour as arg. Common function to set colour. Named values.
+def draw_inlays(context: cairo.Context, normed_to_global):
+    def get_inlay_x_position(fret):
+        return (get_fret_x_position(fret) + get_fret_x_position(fret - 1))/2
+    
+    inlay_radius = marker_radius/2
+
+    rgb = 0.7
+    grey = (rgb, rgb, rgb)
+    context.set_source_rgb(*grey)
+    
+    for fret in [3, 5, 7, 9, 15, 17, 19, 21]:
+        u = get_inlay_x_position(fret)
+        v = 0.5
+        centre = normed_to_global(Point(u, v))
+        draw_circle(context, centre, inlay_radius)
+    
+    # Double inlay at 12th fret.
+    u = get_inlay_x_position(12)
+    offset = 0.2
+    v1 = 0.5 - offset
+    v2 = 0.5 + offset
+    centre1 = normed_to_global(Point(u, v1))
+    centre2 = normed_to_global(Point(u, v2))
+    draw_circle(context, centre1, inlay_radius)
+    draw_circle(context, centre2, inlay_radius)
 
 
 def get_transforms(top_left: Point, bottom_right: Point):
@@ -148,8 +175,10 @@ def main():
     black = (0, 0, 0)
     line_width = 5  # TODO: scale with image.
     context.set_line_width(line_width)
-    context.set_source_rgb(*black)
+    context.set_line_cap(cairo.LINE_CAP_ROUND)
 
+    draw_inlays(context, normed_to_global)
+    context.set_source_rgb(*black)
     draw_frets(context, normed_to_global)
     draw_strings(context, normed_to_global)
 

@@ -14,6 +14,7 @@ Enforce minimum sizes, line widths (not sub-pixel).
 Specify bounding box, dimensions within it normalised to [0, 1],
     use this to combine e.g. fretboard and piano in single frame.
 Adapt to different string numbers: bass, ukelele, extended guitar.
+Change to SVG?
 """
 
 from dataclasses import dataclass

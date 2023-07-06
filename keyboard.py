@@ -139,8 +139,8 @@ def main():
         draw_polygon(context, vertices, fill=False)
     
     # Draw black keys.
-    c = black_key_width/4
-    d = c
+    c = black_key_width/6
+    d = black_key_width/4
     offsets = num_octaves*[-c, c, -d, 0, d]
     multiples = []
     for octave in range(num_octaves):

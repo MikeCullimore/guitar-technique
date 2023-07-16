@@ -5,10 +5,10 @@ Adapted from https://developers.google.com/youtube/v3/guides/uploading_a_video
 
 See youtube_upload.sh for example usage.
 
-todo
-* Too much hassle? Just copy to phone instead?!
-* Separate account for this YouTube channel?
-* Creds from .env not JSON?
+TODO:
+Too much hassle? Just copy to phone instead?! Or upload manually!
+Separate account for this YouTube channel?
+Creds from .env not JSON?
 """
 
 

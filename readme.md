@@ -19,6 +19,8 @@ Tools to help improve guitar-playing technique and understanding of music theory
     * Make practise sessions by combining videos (scales, note finding etc.)
     * Views: guitar fretboard, piano, stave (each will need a renderer).
 * Ear trainer: play notes separately (melodic) then together (harmonic), show positions.
+* Formatter
+* Linter
 
 
 ## Project goals

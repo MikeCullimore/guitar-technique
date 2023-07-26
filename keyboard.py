@@ -9,15 +9,7 @@ Allow arbitrary first and last key.
     Work out range of guitar in standard tuning with same # frets as own (22?) and match it. C2 to C6?
     Default to range of full 88 key piano (because both ends are odd!). Simpler to just do whole octaves?
     Do same for bass.
-Define vertices for each note then repeat for octaves.
-    White notes should include shape of black not just rectangle drawn over.
-    Check by colouring each key blue separately.
-    Function to draw note: input note and colour (including transparency).
-        Separate border and fill?
-    Explicitly draw white keys as white so not assuming white background.
-Operator overloads for point (add, subtract).
-Option to print note names on keys.
-    Or scale degrees.
+Option to print labels on keys, could be note names, scale degrees, fingering.
 Encapsulate coordinate transformations in drawing functions.
 SVG equivalent (for React).
 """
@@ -25,11 +17,12 @@ SVG equivalent (for React).
 from dataclasses import dataclass
 from enum import Enum
 import math
-from typing import List, NamedTuple
+from typing import Dict, List, NamedTuple
 
 import cairo
 
 
+# TODO: C as 1? (Does it matter?)
 class Pitch(Enum):
     A = 1
     A_SHARP = 2
@@ -65,6 +58,7 @@ class Colour(NamedTuple):
     blue: int
 
 
+# TODO: operator overloads to allow addition, subtraction, scaling. Does pycairo provide?
 @dataclass
 class Point:
     x: float
@@ -109,19 +103,160 @@ def draw_polygon(context: cairo.Context, vertices: List[Point], fill_colour: Col
         context.fill()
 
 
+# TODO: remove?
 def is_black_key(pitch: Pitch):
     return pitch in [Pitch.A_SHARP, Pitch.C_SHARP, Pitch.D_SHARP, Pitch.F_SHARP, Pitch.G_SHARP]
 
-
+# TODO: remove?
 def is_white_key(pitch: Pitch):
     return not is_black_key(pitch)
 
 
-# TODO: get_piano_key_vertices (then use instead of loops below).
-def get_piano_key_vertices(note: Note, keyboard_dimensions: KeyboardDimensions) -> List[Point]:
-    print(f"Black key? {is_black_key(note.pitch)}")
-    print(f"White key? {is_white_key(note.pitch)}")
-    return []
+KeyVerticesLookup = Dict[Pitch, List[Point]]
+
+# TODO: define template for each shape then add X offset for octave.
+# TODO: also scale in X for number of octaves? (Define keys in x in [0, 1].)
+# TODO: separate file?
+def get_key_vertices_lookup(keyboard_dimensions: KeyboardDimensions) -> KeyVerticesLookup:
+    lookup: KeyVerticesLookup = {}
+
+    bkh = keyboard_dimensions.black_key_height
+    
+    u1 = 0
+    u3 = keyboard_dimensions.white_key_width
+    u2 = u3 - keyboard_dimensions.black_key_width/2 - keyboard_dimensions.offset_1
+    lookup[Pitch.C] = [
+        Point(u1, 0),
+        Point(u2, 0),
+        Point(u2, bkh),
+        Point(u3, bkh),
+        Point(u3, 1),
+        Point(u1, 1),
+        Point(u1, 0)
+    ]
+
+    u4 = u2 + keyboard_dimensions.black_key_width
+    lookup[Pitch.C_SHARP] = [
+        Point(u2, 0),
+        Point(u4, 0),
+        Point(u4, bkh),
+        Point(u2, bkh),
+        Point(u2, 0)
+    ]
+
+    u6 = 2*keyboard_dimensions.white_key_width
+    u5 = u6 - keyboard_dimensions.black_key_width/2 + keyboard_dimensions.offset_1
+    lookup[Pitch.D] = [
+        Point(u4, 0),
+        Point(u5, 0),
+        Point(u5, bkh),
+        Point(u6, bkh),
+        Point(u6, 1),
+        Point(u3, 1),
+        Point(u3, bkh),
+        Point(u4, bkh),
+        Point(u4, 0)
+    ]
+
+    u7 = u5 + keyboard_dimensions.black_key_width
+    lookup[Pitch.D_SHARP] = [
+        Point(u5, 0),
+        Point(u7, 0),
+        Point(u7, bkh),
+        Point(u5, bkh),
+        Point(u5, 0)
+    ]
+
+    u8 = 3*keyboard_dimensions.white_key_width
+    lookup[Pitch.E] = [
+        Point(u7, 0),
+        Point(u8, 0),
+        Point(u8, 1),
+        Point(u6, 1),
+        Point(u6, bkh),
+        Point(u7, bkh),
+        Point(u7, 0)
+    ]
+
+    u10 = 4*keyboard_dimensions.white_key_width
+    u9 = u10 - keyboard_dimensions.black_key_width/2 - keyboard_dimensions.offset_2
+    lookup[Pitch.F] = [
+        Point(u8, 0),
+        Point(u9, 0),
+        Point(u9, bkh),
+        Point(u10, bkh),
+        Point(u10, 1),
+        Point(u8, 1),
+        Point(u8, 0)
+    ]
+
+    u11 = u9 + keyboard_dimensions.black_key_width
+    lookup[Pitch.F_SHARP] = [
+        Point(u9, 0),
+        Point(u11, 0),
+        Point(u11, bkh),
+        Point(u9, bkh),
+        Point(u9, 0)
+    ]
+
+    u13 = 5*keyboard_dimensions.white_key_width
+    u12 = u13 - keyboard_dimensions.black_key_width/2
+    lookup[Pitch.G] = [
+        Point(u11, 0),
+        Point(u12, 0),
+        Point(u12, bkh),
+        Point(u13, bkh),
+        Point(u13, 1),
+        Point(u10, 1),
+        Point(u10, bkh),
+        Point(u11, bkh),
+        Point(u11, 0)
+    ]
+
+    u14 = u12 + keyboard_dimensions.black_key_width
+    lookup[Pitch.G_SHARP] = [
+        Point(u12, 0),
+        Point(u14, 0),
+        Point(u14, bkh),
+        Point(u12, bkh),
+        Point(u12, 0)
+    ]
+
+    u16 = 6*keyboard_dimensions.white_key_width
+    u15 = u16 - keyboard_dimensions.black_key_width/2 + keyboard_dimensions.offset_2
+    lookup[Pitch.A] = [
+        Point(u14, 0),
+        Point(u15, 0),
+        Point(u15, bkh),
+        Point(u16, bkh),
+        Point(u16, 1),
+        Point(u13, 1),
+        Point(u13, bkh),
+        Point(u14, bkh),
+        Point(u14, 0)
+    ]
+
+    u17 = u15 + keyboard_dimensions.black_key_width
+    lookup[Pitch.A_SHARP] = [
+        Point(u15, 0),
+        Point(u17, 0),
+        Point(u17, bkh),
+        Point(u15, bkh),
+        Point(u15, 0)
+    ]
+
+    u18 = 7*keyboard_dimensions.white_key_width
+    lookup[Pitch.B] = [
+        Point(u17, 0),
+        Point(u18, 0),
+        Point(u18, 1),
+        Point(u16, 1),
+        Point(u16, bkh),
+        Point(u17, bkh),
+        Point(u17, 0)
+    ]
+
+    return lookup
 
 
 # TODO: refactor main into small responsibilities:
@@ -172,6 +307,7 @@ def main():
     normed_to_global = get_transform(top_left, bottom_right)
 
     # Define keyboard dimensions.
+    # TODO: add octave width as dimension or infer?
     golden_ratio = 2/(1 + math.sqrt(5))
     num_octaves = 3
     num_white_keys = 7*num_octaves
@@ -221,9 +357,32 @@ def main():
         draw_polygon(context, vertices, black, black)
     
     # Debugging.
-    note = Note(Pitch.C, octave=0)
-    vertices = get_piano_key_vertices(note, keyboard_dimensions)
-    print(vertices)
+    # note = Note(Pitch.C, octave=0)
+    lookup = get_key_vertices_lookup(keyboard_dimensions)
+
+    # TODO: use this for real not just debugging. Move it out of here.
+    def draw_key(pitch, colour):
+        vertices = lookup[pitch]
+        print(vertices)
+        tmp = normed_to_global_list(vertices, normed_to_global)
+        draw_polygon(context, tmp, colour)
+    
+    # TODO: why do edges not quite line up?! Because edge colour on outside of polygon? If yes, drop it!
+    red = Colour(1, 0, 0)
+    green = Colour(0, 1, 0)
+    blue = Colour(0, 0, 1)
+    draw_key(Pitch.C, blue)
+    draw_key(Pitch.C_SHARP, green)
+    draw_key(Pitch.D, red)
+    draw_key(Pitch.D_SHARP, green)
+    draw_key(Pitch.E, blue)
+    draw_key(Pitch.F, red)
+    draw_key(Pitch.F_SHARP, green)
+    draw_key(Pitch.G, blue)
+    draw_key(Pitch.G_SHARP, green)
+    draw_key(Pitch.A, red)
+    draw_key(Pitch.A_SHARP, green)
+    draw_key(Pitch.B, blue)
 
     # Save the image as PNG
     surface.write_to_png("keyboard.png")

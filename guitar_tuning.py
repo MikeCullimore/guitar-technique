@@ -1,24 +1,18 @@
-from chroma import Chroma, chroma_list, len_chroma
+from typing import Dict, List, NamedTuple
 
-# Type aliases: https://docs.python.org/3/library/typing.html
-# todo: possible to impose length limits e.g. Tuning is a list of *six* strings?
-# todo: look at data classes https://docs.python.org/3/library/dataclasses.html
-# todo: look at named tuples https://docs.python.org/3/library/typing.html#typing.NamedTuple 
-Octave = int
-Note = tuple[Chroma, Octave]
-Tuning = list[Note]
-String = int
-Fret = int
-Position = tuple[String, Fret]
+from chroma import Chroma, chroma_list, len_chroma
+from fretboard import FretboardPosition
+from notes import Note
+
 
 # Standard tuning.
 standard_tuning = [
-    (Chroma.E, 2),
-    (Chroma.A, 2),
-    (Chroma.D, 3),
-    (Chroma.G, 3),
-    (Chroma.B, 3),
-    (Chroma.E, 4)
+    Note(Chroma.E, 2),
+    Note(Chroma.A, 2),
+    Note(Chroma.D, 3),
+    Note(Chroma.G, 3),
+    Note(Chroma.B, 3),
+    Note(Chroma.E, 4)
 ]
 
 class GuitarTuning:
@@ -34,12 +28,11 @@ class GuitarTuning:
         self._num_frets = num_frets
 
         # Build lookup tables to convert from position to note and vice versa.
-        self._positions_to_notes = {}
-        self._notes_to_positions = {}
+        # TODO: refactor to key on note and position i.e. tuples, not nested dict with separate chroma and octave.
+        # TODO: test changes using create_video.py.
+        self._positions_to_notes: Dict[FretboardPosition, Note] = {}
+        self._notes_to_positions: Dict[Note, List[FretboardPosition]] = {}
         for string in range(1, self._num_strings + 1):
-            # Initialise empty lookup for this string.
-            self._positions_to_notes[string] = {}
-            
             # Get open string.
             chroma_open, octave_open = self._open_strings[string - 1]
         
@@ -57,46 +50,41 @@ class GuitarTuning:
                 octave = octave_open + octave_offset
                 
                 # Store lookup value for this position.
-                self._positions_to_notes[string][fret] = (chroma, octave)
+                position = FretboardPosition(string, fret)
+                note = Note(chroma, octave)
+                self._positions_to_notes[position] = note
 
-                # If no entry for this chroma in inverse lookup, initialise it.
-                if chroma not in self._notes_to_positions.keys():
-                    self._notes_to_positions[chroma] = {}
-                
-                # If no entry for this octave and this chroma, initialise it.
-                if octave not in self._notes_to_positions[chroma].keys():
-                    self._notes_to_positions[chroma][octave] = []
+                # If no entry for this note in inverse lookup, initialise it.
+                if note not in self._notes_to_positions.keys():
+                    self._notes_to_positions[note] = []
                 
                 # Now safe to add note to inverse lookup.
                 # Append because there may be multiple positions for the same note.
-                self._notes_to_positions[chroma][octave].append((string, fret))
+                self._notes_to_positions[note].append(position)
     
-    def note_to_positions(self, chroma, octave):
-        """Given a note (chroma and octave), return the corresponding positions.
-
-        todo:
-        Make octave optional, or have separate method chroma_to_positions?
-        """
+    def note_to_positions(self, note: Note) -> List[FretboardPosition]:
+        """Given a note (chroma and octave), return the corresponding positions."""
         try:
-            return self._notes_to_positions[chroma][octave]
+            return self._notes_to_positions[note]
         except KeyError:
-            print(f'The note {chroma}{octave} is not available in this tuning.')
+            print(f'The note {note} is not available in this tuning.')
     
-    def position_to_note(self, string, fret):
+    def position_to_note(self, position: FretboardPosition) -> Note:
         """Given a string and fret, return the corresponding note.
         
         todo: Change input validation to just check whether key is in lookup dict?
+        todo: typing
         """
-        if fret < 0:
+        if position.fret < 0:
             raise ValueError(f'fret must be >= 0 (which represents the open string).')
 
-        if fret > self._num_frets:
+        if position.fret > self._num_frets:
             raise ValueError(f'fret must be <= {self._num_frets}')
         
-        if string < 1:
+        if position.string < 1:
             raise ValueError(f'string must be >= 1.')
         
-        if string > self._num_strings:
+        if position.string > self._num_strings:
             raise ValueError(f'string must be <= {self._num_strings}.')
         
-        return self._positions_to_notes[string][fret]
+        return self._positions_to_notes[position]

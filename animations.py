@@ -79,6 +79,7 @@ def pentatonic():
 
 def when_the_sun_goes_down():
     """Arctic Monkeys: don't believe the hype! ;)"""
+    # TODO: replace these with string representations.
     B = [(1, 7), (2, 9), (3, 9), (4, 8), (5, 7), (6, 7)]
     C_SHARP_MINOR = [(2, 4), (3, 6), (4, 6), (5, 5), (6, 4)]
     D_SHARP_MINOR = [(2, 6), (3, 8), (4, 8), (5, 7), (6, 6)]

@@ -8,7 +8,8 @@ Note as struct (chroma and octave).
 Add a frequency conversion function which accounts for string inharmonicity (see Railsback curve).
 """
 
-from chroma import chroma_list, len_chroma
+from typing import NamedTuple
+from chroma import Chroma, chroma_list, len_chroma
 
 MIDI_MIN = 0
 MIDI_MAX = 128
@@ -16,6 +17,16 @@ PIANO_MIN = 1
 PIANO_MAX = 88
 MIDI_A4 = 69
 A4_FREQUENCY = 440  # [Hz]
+
+
+# TODO: provide method to get frequency?
+class Note(NamedTuple):
+    chroma: Chroma
+    octave: int
+
+    def __str__(self):
+        return f"Note(chroma={self.chroma}, octave={self.octave})"
+
 
 def midi_to_piano(midi):
     """Convert MIDI note number to piano key number."""

@@ -19,15 +19,19 @@ Change to SVG?
 
 from dataclasses import dataclass
 import math
-from typing import List
+from typing import List, NamedTuple
 
 import cairo
 
-@dataclass
-class NoteMarker:
+class FretboardPosition(NamedTuple):
     string: int
     fret: int
 
+    def __str__(self):
+        return f"NoteMarker(string={self.string}, fret={self.fret})"
+
+# TODO: NamedTuple?
+# TODO: share with keyboard.py.
 @dataclass
 class Point:
     x: float
@@ -87,7 +91,7 @@ def draw_strings(context, normed_to_global):
 
 
 # TODO: refactor for single note so they can be different colours.
-def draw_notes(context, notes: List[NoteMarker], normed_to_global):
+def draw_notes(context, notes: List[FretboardPosition], normed_to_global):
     for note in notes:
         r = 40  # TODO: account for this in padding. Make it smaller than closest fret.
         u = get_fret_x_position(note.fret)  # TODO: minus r!
@@ -140,13 +144,13 @@ def get_transforms(top_left: Point, bottom_right: Point):
     return global_to_normed, normed_to_global
 
 
-def chord_string_to_note_markers(chord_string):
+def chord_string_to_fretboard_positions(chord_string) -> List[FretboardPosition]:
     note_markers = []
     for i, char in enumerate(chord_string):
         string = i + 1
         if char != "x":
             fret = int(char)
-            note_markers.append(NoteMarker(string, fret))
+            note_markers.append(FretboardPosition(string, fret))
     return note_markers
 
 
@@ -186,7 +190,7 @@ def main():
     # Draw some notes.
     # TODO: add more chords!
     G = '300023'
-    notes = chord_string_to_note_markers(G)
+    notes = chord_string_to_fretboard_positions(G)
     draw_notes(context, notes, normed_to_global)
 
     # # Set text properties

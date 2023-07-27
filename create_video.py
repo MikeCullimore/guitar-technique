@@ -45,6 +45,7 @@ def create_files(positions, bpm, fileroot):
     # Convert to frequencies.
     # todo: accommodate multiple frequencies at any given time.
     tuning = GuitarTuning()
+    # TODO: update to accommodate refactor of GuitarTuning.
     notes = [tuning.position_to_note(*position[0]) for position in positions]  # hack: see above.
     frequencies = [note_to_frequency(chroma, octave) for (chroma, octave) in notes]
     print(frequencies)
